@@ -1,0 +1,84 @@
+# server:
+#   http_listen_port: 9080
+
+# positions:
+#   filename: /tmp/positions.yaml
+
+# clients:
+#   - url: http://loki:3100/loki/api/v1/push
+
+# scrape_configs:
+#   - job_name: docker
+
+#     docker_sd_configs:
+#       - host: unix:///var/run/docker.sock
+
+#     relabel_configs:
+#       - source_labels: [__meta_docker_container_name]
+#         regex: "/(.*)"
+#         target_label: container
+
+#       - source_labels: [__meta_docker_container_name]
+#         regex: "/(.*)"
+#         target_label: job
+
+#     pipeline_stages:
+#       - docker: {}
+
+
+
+# Kubernetes doesn't use Docker discovery anymore (Kind uses containerd).
+# Instead, use Kubernetes service discovery.
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+
+  - job_name: kubernetes-pods
+
+    kubernetes_sd_configs:
+      - role: pod
+
+    pipeline_stages:
+      - cri: {}
+
+    relabel_configs:
+
+      # Keep only pods running on this node
+      - source_labels:
+          - __meta_kubernetes_pod_node_name
+        target_label: __host__
+
+      # Namespace
+      - source_labels:
+          - __meta_kubernetes_namespace
+        target_label: namespace
+
+      # Pod
+      - source_labels:
+          - __meta_kubernetes_pod_name
+        target_label: pod
+
+      # Container
+      - source_labels:
+          - __meta_kubernetes_pod_container_name
+        target_label: container
+
+      # App label
+      - source_labels:
+          - __meta_kubernetes_pod_label_app
+        target_label: app
+
+      # Log file path
+      - replacement: /var/log/pods/*$1/*.log
+        separator: /
+        source_labels:
+          - __meta_kubernetes_pod_uid
+          - __meta_kubernetes_pod_container_name
+        target_label: __path__

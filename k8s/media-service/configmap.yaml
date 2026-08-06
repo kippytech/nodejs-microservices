@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: media-service-config
+  namespace: development
+
+data:
+  PORT: "3000"
+
+  NODE_ENV: "development"
+
+  SERVICE_NAME: "media-service"
+
+  REDIS_URL: "redis://redis:6379"
+
+  RABBITMQ_URL: "amqp://rabbitmq:5672"
+
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"

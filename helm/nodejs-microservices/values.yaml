@@ -1,0 +1,222 @@
+#namespace: development
+
+#imagePullPolicy: Never #IfNotPresent
+imagePullPolicy:
+  local: Never
+  external: IfNotPresent
+
+images:
+  api-gateway: nodejs-microservices-2025-api-gateway:latest
+  identity-service: nodejs-microservices-2025-identity-service:latest
+  post-service: nodejs-microservices-2025-post-service:latest
+  media-service: nodejs-microservices-2025-media-service:latest
+  search-service: nodejs-microservices-2025-search-service:latest
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+ingress:
+  className: nginx
+  host: api.local
+
+apiGateway:
+  replicas: 1
+
+  configMap: api-gateway-config
+
+  secret: api-gateway-secret
+
+  hpa:
+    minReplicas: 1
+    maxReplicas: 5
+    averageCpuUtilization: 70
+
+identityService:
+  replicas: 1
+  configMap: identity-service-config
+  secret: identity-service-secret
+
+postService:
+  replicas: 1
+  configMap: post-service-config
+  secret: post-service-secret
+
+mediaService:
+  replicas: 1
+  configMap: media-service-config
+  secret: media-service-secret
+
+searchService:
+  replicas: 1
+  configMap: search-service-config
+  secret: search-service-secret
+
+mongodb:
+  image: mongo:6
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+
+  storage:
+    size: 5Gi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+redis:
+  image: redis:7-alpine
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+
+  storage:
+    size: 2Gi
+
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+rabbitmq:
+  image: rabbitmq:3-management
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+
+  storage:
+    size: 5Gi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+jaeger:
+  image: jaegertracing/all-in-one:latest
+  imagePullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+otelCollector:
+  image: otel/opentelemetry-collector-contrib:latest
+  imagePullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+prometheus:
+  image: prom/prometheus:v3.5.0
+
+  imagePullPolicy: IfNotPresent
+
+  replicas: 1
+
+  storage:
+    size: 5Gi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+grafana:
+  image: grafana/grafana:latest
+
+  imagePullPolicy: IfNotPresent
+
+  replicas: 1
+
+  storage:
+    size: 2Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+alertmanager:
+  image: prom/alertmanager:latest
+
+  imagePullPolicy: IfNotPresent
+
+  replicas: 1
+
+  storage:
+    size: 2Gi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+loki:
+  image: grafana/loki:latest
+
+  imagePullPolicy: IfNotPresent
+
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+promtail:
+  image: grafana/promtail:latest
+
+  imagePullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+    limits:
+      cpu: 200m
+      memory: 128Mi

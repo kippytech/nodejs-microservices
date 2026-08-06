@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: rabbitmq
+  #namespace: {{ include "nodejs-microservices.namespace" . }}
+
+spec:
+  serviceName: rabbitmq
+
+  replicas: {{ .Values.rabbitmq.replicas }}
+
+  selector:
+    matchLabels:
+      app: rabbitmq
+
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+
+    spec:
+      containers:
+        - name: rabbitmq
+
+          image: {{ .Values.rabbitmq.image }}
+
+          imagePullPolicy: {{ .Values.rabbitmq.imagePullPolicy }}
+
+          ports:
+            - containerPort: 5672
+
+            - containerPort: 15672
+
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: guest
+
+            - name: RABBITMQ_DEFAULT_PASS
+              value: guest
+
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+
+          resources:
+          {{- toYaml .Values.rabbitmq.resources | nindent 12 }}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: rabbitmq-data
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        resources:
+          requests:
+            storage: {{ .Values.rabbitmq.storage.size }}

@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: mongodb-init-rs
+  #namespace: {{ include "nodejs-microservices.namespace" . }}
+
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: mongo-init
+
+          image: mongo:6
+
+          command:
+            - bash
+            - -c
+            - |
+                until mongosh --host mongodb-0.mongodb:27017 --quiet --eval "db.adminCommand('ping').ok" | grep 1
+                do
+                  echo "Waiting for MongoDB..."
+                  sleep 2
+                done
+
+                until mongosh --host mongodb-0.mongodb:27017 --quiet --eval "try { rs.status().ok } catch(e) { 0 }" | grep 1
+                do
+                  echo "Initializing replica set..."
+
+                  mongosh --host mongodb-0.mongodb:27017 --eval '
+                    try {
+                      rs.initiate({
+                        _id: "rs0",
+                        members: [
+                          { _id: 0, host: "mongodb-0.mongodb:27017" }
+                        ]
+                      })
+                    } catch(e) {
+                      print(e)
+                    }
+                  '
+
+                  sleep 2
+                done
+
+                echo "Replica set initialized."

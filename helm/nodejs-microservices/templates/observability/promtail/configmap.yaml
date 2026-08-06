@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: promtail-config
+
+data:
+
+  config.yml: |
+{{ .Files.Get "monitoring/promtail-config.yml" | indent 4 }}

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: mongodb
+  #namespace: {{ include "nodejs-microservices.namespace" . }}
+
+spec:
+  serviceName: mongodb
+
+  replicas: {{ .Values.mongodb.replicas }}
+
+  selector:
+    matchLabels:
+      app: mongodb
+
+  template:
+    metadata:
+      labels:
+        app: mongodb
+
+    spec:
+      containers:
+        - name: mongodb
+
+          image: {{ .Values.mongodb.image }}
+
+          imagePullPolicy: {{ .Values.mongodb.imagePullPolicy }}
+
+          command:
+            - mongod
+            - --bind_ip_all
+            - --replSet
+            - rs0
+
+          ports:
+            - containerPort: 27017
+
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+
+          resources:
+          {{- toYaml .Values.mongodb.resources | nindent 12 }}
+
+  volumeClaimTemplates:
+
+    - metadata:
+        name: mongodb-data
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        resources:
+          requests:
+            storage: {{ .Values.mongodb.storage.size }}

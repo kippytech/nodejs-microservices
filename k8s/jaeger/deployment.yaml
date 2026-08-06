@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: jaeger
+  namespace: development
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: jaeger
+
+  template:
+    metadata:
+      labels:
+        app: jaeger
+
+    spec:
+      containers:
+        - name: jaeger
+
+          image: jaegertracing/all-in-one:latest
+
+          ports:
+            - containerPort: 16686
+            - containerPort: 4317
+
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "32Mi"
+
+            limits:
+              cpu: "100m"
+              memory: "128Mi"

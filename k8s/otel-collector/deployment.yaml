@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: otel-collector
+  namespace: development
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: otel-collector
+
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+
+    spec:
+      containers:
+        - name: otel-collector
+
+          image: otel/opentelemetry-collector-contrib:latest
+
+          ports:
+            - containerPort: 4317
+            - containerPort: 4318
+
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "32Mi"
+
+            limits:
+              cpu: "100m"
+              memory: "128Mi"

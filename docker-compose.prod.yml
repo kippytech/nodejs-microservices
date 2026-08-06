@@ -1,0 +1,35 @@
+services:
+
+  api-gateway:
+    # build:
+    #   target: production
+    image: ghcr.io/kippytech/api-gateway:${IMAGE_TAG}  #2026
+    ports:
+      - "3000:3000"
+
+  identity-service:
+    # build:
+    #   target: production
+    image: ghcr.io/kippytech/identity-service:${IMAGE_TAG}  #2026
+
+  post-service:
+    # build:
+    #   target: production
+    ghcr.io/kippytech/post-service:${IMAGE_TAG}  #2026
+
+  media-service:
+    # build:
+    #   target: production
+    ghcr.io/kippytech/media-service:${IMAGE_TAG}  #2026
+
+  search-service:
+    # build:
+    #   target: production
+    ghcr.io/kippytech/search-service:${IMAGE_TAG}  #2026
+
+# # update only the line in vps
+# sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${{ github.sha }}/" .env
+# # or, if the line might not exist yet
+# grep -q "^IMAGE_TAG=" .env \
+#   && sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${{ github.sha }}/" .env \
+#   || echo "IMAGE_TAG=${{ github.sha }}" >> .env

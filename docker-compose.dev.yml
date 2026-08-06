@@ -1,0 +1,69 @@
+services:
+
+  api-gateway:
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+
+  identity-service:
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./identity-service:/app
+      - /app/node_modules
+
+  post-service:
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./post-service:/app
+      - /app/node_modules
+
+  media-service:
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3003:3000"
+    volumes:
+      - ./media-service:/app
+      - /app/node_modules
+
+  search-service:
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3004:3000"
+    volumes:
+      - ./search-service:/app
+      - /app/node_modules
+
+  mongodb:
+    ports:
+      - "27017:27017"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"

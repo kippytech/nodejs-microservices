@@ -1,0 +1,329 @@
+#version: "3.8"
+
+services:
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    env_file:
+      - ./api-gateway/.env
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: api-gateway
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - social-network
+
+  identity-service:
+    build:
+      context: ./identity-service
+    env_file:
+      - ./identity-service/.env
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: identity-service
+      MONGODB_URI: mongodb://mongodb:27017/identity-db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - social-network
+
+  post-service:
+    build:
+      context: ./post-service
+    env_file:
+      - ./post-service/.env
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: post-service
+      MONGODB_URI: mongodb://mongodb:27017/post-db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - social-network
+
+  media-service:
+    build:
+      context: ./media-service
+    env_file:
+      - ./media-service/.env
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: media-service
+      MONGODB_URI: mongodb://mongodb:27017/media-db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - social-network
+
+  search-service:
+    build:
+      context: ./search-service
+    env_file:
+      - ./search-service/.env
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: search-service
+      MONGODB_URI: mongodb://mongodb:27017/search-db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - social-network
+
+  mongodb:
+    image: mongo:6
+
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+
+    volumes:
+      - mongodb-data:/data/db
+
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "mongosh --quiet --eval \"try { rs.status().ok } catch(e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}); }\""
+      ]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+
+    networks:
+      - social-network
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - social-network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - social-network
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+
+    ports:
+      - "9090:9090"
+
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+
+    depends_on:
+      - api-gateway
+      - identity-service
+      - post-service
+      - media-service
+      - search-service
+
+    restart: unless-stopped
+
+    networks:
+      - social-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+
+    ports:
+      - "3005:3000"
+
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+    depends_on:
+      - prometheus
+
+    restart: unless-stopped
+
+    networks:
+      - social-network
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+
+    ports:
+      - "9093:9093"
+
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+
+    restart: unless-stopped
+
+    networks:
+      - social-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+
+    ports:
+      - "16686:16686"
+
+    restart: unless-stopped
+
+    networks:
+      - social-network
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+
+    command:
+      - "--config=/etc/otelcol-contrib/config.yml"
+
+    volumes:
+      - ./monitoring/otel-collector-config.yml:/etc/otelcol-contrib/config.yml:ro
+
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+    depends_on:
+      - jaeger
+
+    restart: unless-stopped
+
+    networks:
+      - social-network
+  loki:
+    image: grafana/loki:latest
+
+    command:
+      - "-config.file=/etc/loki/local-config.yaml"
+
+    ports:
+      - "3100:3100"
+
+    restart: unless-stopped
+
+    networks:
+      - social-network
+
+  promtail:
+    image: grafana/promtail:latest
+
+    command:
+      - "-config.file=/etc/promtail/config.yml"
+
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
+      #- ./monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    depends_on:
+      - loki
+
+    restart: unless-stopped
+
+    networks:
+      - social-network
+
+volumes:
+  mongodb-data:
+  redis-data:
+  rabbitmq-data:
+  prometheus-data:
+  grafana-data:
+  alertmanager-data:
+
+networks:
+  social-network:

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: alertmanager
+
+spec:
+  replicas: {{ .Values.alertmanager.replicas }}
+
+  selector:
+    matchLabels:
+      app: alertmanager
+
+  template:
+
+    metadata:
+      labels:
+        app: alertmanager
+
+{{ include "nodejs-microservices.labels" . | indent 8 }}
+
+    spec:
+
+      containers:
+
+        - name: alertmanager
+
+          image: {{ .Values.alertmanager.image }}
+
+          imagePullPolicy: {{ .Values.alertmanager.imagePullPolicy }}
+
+          args:
+            - "--config.file=/etc/alertmanager/alertmanager.yml"
+            - "--storage.path=/alertmanager"
+
+          ports:
+            - containerPort: 9093
+
+          resources:
+{{ toYaml .Values.alertmanager.resources | nindent 12 }}
+
+          volumeMounts:
+
+            - name: config
+              mountPath: /etc/alertmanager
+
+            - name: data
+              mountPath: /alertmanager
+
+      volumes:
+
+        - name: config
+          configMap:
+            name: alertmanager-config
+
+        - name: data
+          persistentVolumeClaim:
+            claimName: alertmanager-data

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: identity-service
+  #namespace: {{ include "nodejs-microservices.namespace" . }}
+
+spec:
+  replicas: {{ .Values.identityService.replicas }}
+
+  selector:
+    matchLabels:
+      app: identity-service
+
+  template:
+    metadata:
+      labels:
+        app: identity-service
+
+    spec:
+      containers:
+        - name: identity-service
+
+          image: {{ index .Values.images "identity-service" }}
+
+          imagePullPolicy: {{ .Values.imagePullPolicy.local }}
+
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.identityService.configMap}}
+
+            - secretRef:
+                name: {{ .Values.identityService.secret}}
+
+          ports:
+            - containerPort: 3000
+
+          resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+
+            failureThreshold: 30
+            periodSeconds: 2
+
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: 3000
+
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

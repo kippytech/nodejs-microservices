@@ -1,0 +1,246 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  #IMAGE_TAG: 2026
+  IMAGE_TAG: ${{ github.sha }}
+  RELEASE_TAG: v0.1.0
+
+jobs:
+  deploy:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: kippytech
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build API Gateway image
+        run: |
+          docker build \
+            --target production \
+            -t ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }} \
+            ./api-gateway
+
+      - name: Tag API Gateway Release
+        run: |
+          docker tag \
+            ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }} \
+            ghcr.io/kippytech/api-gateway:${{ env.RELEASE_TAG }}
+
+      - name: Build Identity Service image
+        run: |
+          docker build \
+            --target production \
+            -t ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }} \
+            ./identity-service
+
+      - name: Tag Identity Service Release
+        run: |
+          docker tag \
+            ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }} \
+            ghcr.io/kippytech/identity-service:${{ env.RELEASE_TAG }}
+
+      - name: Build Post Service image
+        run: |
+          docker build \
+            --target production \
+            -t ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }} \
+            ./post-service
+
+      - name: Tag Post Service Release
+        run: |
+          docker tag \
+            ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }} \
+            ghcr.io/kippytech/post-service:${{ env.RELEASE_TAG }}
+
+      - name: Build Media Service image
+        run: |
+          docker build \
+            --target production \
+            -t ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }} \
+            ./media-service
+
+      - name: Tag Media Service Release
+        run: |
+          docker tag \
+            ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }} \
+            ghcr.io/kippytech/media-service:${{ env.RELEASE_TAG }}
+
+      - name: Build Search Service image
+        run: |
+          docker build \
+            --target production \
+            -t ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }} \
+            ./search-service
+
+      - name: Tag Search Service Release
+        run: |
+          docker tag \
+            ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }} \
+            ghcr.io/kippytech/search-service:${{ env.RELEASE_TAG }}
+
+      - name: Push API Gateway image
+        run: docker push ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }}
+
+      - name: Push Release Image
+        run: |
+          docker push ghcr.io/kippytech/api-gateway:${{ env.RELEASE_TAG }}
+
+      - name: Push Identity Service image
+        run: docker push ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }}
+
+      - name: Push Release Image
+        run: |
+          docker push ghcr.io/kippytech/identity-service:${{ env.RELEASE_TAG }}
+
+      - name: Push Post Service image
+        run: docker push ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }}
+
+      - name: Push Release Image
+        run: |
+          docker push ghcr.io/kippytech/post-service:${{ env.RELEASE_TAG }}
+
+      - name: Push Media Service image
+        run: docker push ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }}
+
+      - name: Push Release Image
+        run: |
+          docker push ghcr.io/kippytech/media-service:${{ env.RELEASE_TAG }}
+
+      - name: Push Search Service image
+        run: docker push ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }}
+
+      - name: Push Release Image
+        run: |
+          docker push ghcr.io/kippytech/search-service:${{ env.RELEASE_TAG }}
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+
+          chmod 600 ~/.ssh/id_ed25519
+
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} IMAGE_TAG=${{ github.sha }} << 'EOF'
+            cd /path/to/nodejs-microservices-2025
+
+            if grep -q "^IMAGE_TAG=" .env; then
+              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/" .env
+            else
+              echo "IMAGE_TAG=$IMAGE_TAG" >> .env
+            fi
+
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              pull
+
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              up -d
+
+            docker image prune -f
+          EOF
+
+
+# name: Deploy to VPS
+
+# on:
+#   push:
+#     branches:
+#       - master
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v2
+
+#       - name: Install Docker Compose
+#         run: |
+#           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#           sudo chmod +x /usr/local/bin/docker-compose
+#           docker-compose --version
+
+#       - name: Log in to Docker Hub
+#         uses: docker/login-action@v2
+#         with:
+#           username: ${{ secrets.DOCKER_USERNAME }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
+
+#       - name: Build and push Docker images
+#         run: |
+#           docker-compose -f docker-compose.yml build
+#           docker-compose -f docker-compose.yml push
+
+#   deploy:
+#     needs: build
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Add VPS SSH host key to known_hosts
+#         run: |
+#           mkdir -p ~/.ssh
+#           ssh-keyscan -H 62.72.30.37 >> ~/.ssh/known_hosts
+
+#       - name: Set up SSH key for authentication
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "${{ secrets.VPS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+
+#       - name: SSH into VPS and deploy
+#         uses: appleboy/ssh-action@v0.1.5
+#         with:
+#           host: 62.72.30.37
+#           username: root
+#           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+#           port: 22
+#           script: |
+#             cd /home/root/projects/nodejsfullcourse/NodeJS-Microservices
+#             git pull origin master
+#             docker-compose down
+#             docker-compose up -d
+
+#       - name: Debug SSH connection (optional)
+#         run: |
+#           ssh -v -i ~/.ssh/id_rsa root@62.72.30.37 "echo 'SSH connection successful'"
+#         continue-on-error: true

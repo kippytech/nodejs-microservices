@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: redis
+  #namespace: {{ include "nodejs-microservices.namespace" . }}
+spec:
+  serviceName: redis
+
+  replicas: {{ .Values.redis.replicas }}
+
+  selector:
+    matchLabels:
+      app: redis
+
+  template:
+    metadata:
+      labels:
+        app: redis
+
+    spec:
+      containers:
+        - name: redis
+
+          image: {{ .Values.redis.image }}
+
+          imagePullPolicy: {{ .Values.redis.imagePullPolicy }}
+
+          ports:
+            - containerPort: 6379
+
+          command:
+            - redis-server
+
+          args:
+            - --appendonly
+            - "yes"
+
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+
+          resources:
+          {{- toYaml .Values.redis.resources | nindent 12 }}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        resources:
+          requests:
+            storage: {{ .Values.redis.storage.size }}

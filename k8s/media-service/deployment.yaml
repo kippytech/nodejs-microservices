@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: media-service
+  namespace: development
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: media-service
+
+  template:
+    metadata:
+      labels:
+        app: media-service
+
+    spec:
+      containers:
+        - name: media-service
+
+          image: nodejs-microservices-2025-media-service:latest
+
+          imagePullPolicy: Never
+
+          envFrom:
+            - configMapRef:
+                name: media-service-config
+
+            - secretRef:
+                name: media-service-secret
+
+          ports:
+            - containerPort: 3000
+
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+
+            failureThreshold: 30
+            periodSeconds: 2
+
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: 3000
+
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3

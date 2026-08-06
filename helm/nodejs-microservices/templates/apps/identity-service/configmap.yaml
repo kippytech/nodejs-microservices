@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: identity-service-config
+  #namespace: {{ .Values.namespace }}
+
+data:
+  PORT: "3000"
+
+  NODE_ENV: "development"
+
+  SERVICE_NAME: "identity-service"
+
+  REDIS_URL: "redis://redis:6379"
+
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"

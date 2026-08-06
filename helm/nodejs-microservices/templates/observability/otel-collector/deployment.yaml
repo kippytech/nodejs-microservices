@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: otel-collector
+  #namespace: {{ include "nodejs-microservices.namespace" . }}
+
+spec:
+  replicas: {{ .Values.otelCollector.replicas }}
+
+  selector:
+    matchLabels:
+      app: otel-collector
+
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+
+    spec:
+      containers:
+        - name: otel-collector
+
+          image: {{ .Values.otelCollector.image }}
+
+          imagePullPolicy: {{ .Values.otelCollector.imagePullPolicy }}
+
+          ports:
+            - containerPort: 4317
+            - containerPort: 4318
+
+          resources:
+          {{- toYaml .Values.otelCollector.resources | nindent 12 }}
