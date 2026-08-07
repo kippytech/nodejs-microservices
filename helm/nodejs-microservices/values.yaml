@@ -1,16 +1,19 @@
 #namespace: development
 
+image:
+  tag: latest
+
 #imagePullPolicy: Never #IfNotPresent
 imagePullPolicy:
   local: Never
   external: IfNotPresent
 
 images:
-  api-gateway: nodejs-microservices-2025-api-gateway:latest
-  identity-service: nodejs-microservices-2025-identity-service:latest
-  post-service: nodejs-microservices-2025-post-service:latest
-  media-service: nodejs-microservices-2025-media-service:latest
-  search-service: nodejs-microservices-2025-search-service:latest
+  api-gateway: nodejs-microservices-2025-api-gateway #:latest
+  identity-service: nodejs-microservices-2025-identity-service #:latest
+  post-service: nodejs-microservices-2025-post-service #:latest
+  media-service: nodejs-microservices-2025-media-service #:latest
+  search-service: nodejs-microservices-2025-search-service #:latest
 
 resources:
   requests:

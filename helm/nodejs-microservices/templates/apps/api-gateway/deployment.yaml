@@ -22,7 +22,8 @@ spec:
         - name: api-gateway
           #image: ghcr.io/kippytech/api-gateway:latest  #${IMAGE_TAG}
           #image: nodejs-microservices-2025-api-gateway:latest
-          image: {{ index .Values.images "api-gateway" }}
+          #image: {{ index .Values.images "api-gateway" }}
+          image: "{{ index .Values.images "api-gateway" }}:{{ .Values.image.tag }}"
 
           #imagePullPolicy: Never  #IfNotPresent
           imagePullPolicy: {{ .Values.imagePullPolicy.local }}

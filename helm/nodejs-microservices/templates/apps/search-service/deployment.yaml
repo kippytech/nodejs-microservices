@@ -21,7 +21,8 @@ spec:
       containers:
         - name: search-service
 
-          image: {{ index .Values.images "search-service" }}
+          #image: {{ index .Values.images "search-service" }}
+          image: "{{ index .Values.images "search-service" }}:{{ .Values.image.tag }}"
 
           imagePullPolicy: {{ .Values.imagePullPolicy.local }}
 

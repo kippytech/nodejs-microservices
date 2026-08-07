@@ -21,7 +21,8 @@ spec:
       containers:
         - name: media-service
 
-          image: {{ index .Values.images "media-service" }}
+          #image: {{ index .Values.images "media-service" }}
+          image: "{{ index .Values.images "media-service" }}:{{ .Values.image.tag }}"
 
           imagePullPolicy: {{ .Values.imagePullPolicy.local }}
 

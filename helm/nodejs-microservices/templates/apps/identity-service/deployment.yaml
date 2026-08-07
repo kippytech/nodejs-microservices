@@ -22,7 +22,8 @@ spec:
       containers:
         - name: identity-service
 
-          image: {{ index .Values.images "identity-service" }}
+          #image: {{ index .Values.images "identity-service" }}
+          image: "{{ index .Values.images "identity-service" }}:{{ .Values.image.tag }}"
 
           imagePullPolicy: {{ .Values.imagePullPolicy.local }}
 

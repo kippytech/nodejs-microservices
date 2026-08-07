@@ -21,7 +21,8 @@ spec:
       containers:
         - name: post-service
 
-          image: {{ index .Values.images "post-service" }}
+          #image: {{ index .Values.images "post-service" }}
+          image: "{{ index .Values.images "post-service" }}:{{ .Values.image.tag }}"
 
           imagePullPolicy: {{ .Values.imagePullPolicy.local }}
 
