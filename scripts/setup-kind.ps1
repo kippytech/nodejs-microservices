@@ -1,36 +1,3 @@
-kind create cluster --name microservices --config kind-config.yaml
-
-# Load images
-kind load docker-image nodejs-microservices-2025-api-gateway:latest --name microservices
-kind load docker-image nodejs-microservices-2025-identity-service:latest --name microservices
-kind load docker-image nodejs-microservices-2025-post-service:latest --name microservices
-kind load docker-image nodejs-microservices-2025-media-service:latest --name microservices
-kind load docker-image nodejs-microservices-2025-search-service:latest --name microservices
-
-# Install ingress
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-
-# Install Metrics Server
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-
-# Patch Metrics Server (Kind)
-kubectl patch deployment metrics-server \
-  -n kube-system \
-  --type=json \
-  --patch='[...]'
-
-# Wait
-kubectl rollout status deployment metrics-server -n kube-system
-
-# Deploy your application
-helm install nodejs-microservices \
-  ./helm/nodejs-microservices \
-  --namespace development \
-  --create-namespace
-
-# #raw manifests
-
-# # Create cluster
 # kind create cluster --name microservices --config kind-config.yaml
 
 # # Load images
@@ -40,14 +7,41 @@ helm install nodejs-microservices \
 # kind load docker-image nodejs-microservices-2025-media-service:latest --name microservices
 # kind load docker-image nodejs-microservices-2025-search-service:latest --name microservices
 
-# # Create namespace FIRST
-# kubectl apply -f k8s/namespace.yaml
+# # Install ingress
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
-# # Wait until namespace exists
-# kubectl wait --for=jsonpath='{.metadata.name}'=development namespace/development --timeout=60s
+# # Install Metrics Server
+# kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
-# # Apply everything else recursively
-# kubectl apply -R -f k8s
+# # Patch Metrics Server (Kind)
+# kubectl patch deployment metrics-server -n kube-system --type=json --patch='[...]'
+
+# # Wait
+# kubectl rollout status deployment metrics-server -n kube-system
+
+# # Deploy your application
+# helm install nodejs-microservices ./helm/nodejs-microservices --namespace development --create-namespace
+
+#raw manifests
+
+# Create cluster
+kind create cluster --name microservices --config kind-config.yaml
+
+# Load images
+kind load docker-image nodejs-microservices-2025-api-gateway:latest --name microservices
+kind load docker-image nodejs-microservices-2025-identity-service:latest --name microservices
+kind load docker-image nodejs-microservices-2025-post-service:latest --name microservices
+kind load docker-image nodejs-microservices-2025-media-service:latest --name microservices
+kind load docker-image nodejs-microservices-2025-search-service:latest --name microservices
+
+# Create namespace FIRST
+kubectl apply -f k8s/namespace.yaml
+
+# Wait until namespace exists
+kubectl wait --for=jsonpath='{.metadata.name}'=development namespace/development --timeout=60s
+
+# Apply everything else recursively
+kubectl apply -R -f k8s
 
 
 # # Apply namespace first

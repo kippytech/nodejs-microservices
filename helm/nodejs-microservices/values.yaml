@@ -108,115 +108,115 @@ rabbitmq:
       cpu: 250m
       memory: 256Mi
 
-jaeger:
-  image: jaegertracing/all-in-one:latest
-  imagePullPolicy: IfNotPresent
+# jaeger:
+#   image: jaegertracing/all-in-one:latest
+#   imagePullPolicy: IfNotPresent
 
-  resources:
-    requests:
-      cpu: 25m
-      memory: 32Mi
+#   resources:
+#     requests:
+#       cpu: 25m
+#       memory: 32Mi
 
-    limits:
-      cpu: 100m
-      memory: 128Mi
+#     limits:
+#       cpu: 100m
+#       memory: 128Mi
 
-otelCollector:
-  image: otel/opentelemetry-collector-contrib:latest
-  imagePullPolicy: IfNotPresent
+# otelCollector:
+#   image: otel/opentelemetry-collector-contrib:latest
+#   imagePullPolicy: IfNotPresent
 
-  resources:
-    requests:
-      cpu: 25m
-      memory: 32Mi
+#   resources:
+#     requests:
+#       cpu: 25m
+#       memory: 32Mi
 
-    limits:
-      cpu: 100m
-      memory: 128Mi
+#     limits:
+#       cpu: 100m
+#       memory: 128Mi
 
-prometheus:
-  image: prom/prometheus:v3.5.0
+# prometheus:
+#   image: prom/prometheus:v3.5.0
 
-  imagePullPolicy: IfNotPresent
+#   imagePullPolicy: IfNotPresent
 
-  replicas: 1
+#   replicas: 1
 
-  storage:
-    size: 5Gi
+#   storage:
+#     size: 5Gi
 
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
+#   resources:
+#     requests:
+#       cpu: 50m
+#       memory: 64Mi
 
-    limits:
-      cpu: 250m
-      memory: 256Mi
+#     limits:
+#       cpu: 250m
+#       memory: 256Mi
 
-grafana:
-  image: grafana/grafana:latest
+# grafana:
+#   image: grafana/grafana:latest
 
-  imagePullPolicy: IfNotPresent
+#   imagePullPolicy: IfNotPresent
 
-  replicas: 1
+#   replicas: 1
 
-  storage:
-    size: 2Gi
+#   storage:
+#     size: 2Gi
 
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
+#   resources:
+#     requests:
+#       cpu: 100m
+#       memory: 128Mi
 
-    limits:
-      cpu: 300m
-      memory: 256Mi
+#     limits:
+#       cpu: 300m
+#       memory: 256Mi
 
-alertmanager:
-  image: prom/alertmanager:latest
+# alertmanager:
+#   image: prom/alertmanager:latest
 
-  imagePullPolicy: IfNotPresent
+#   imagePullPolicy: IfNotPresent
 
-  replicas: 1
+#   replicas: 1
 
-  storage:
-    size: 2Gi
+#   storage:
+#     size: 2Gi
 
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
+#   resources:
+#     requests:
+#       cpu: 50m
+#       memory: 64Mi
 
-    limits:
-      cpu: 250m
-      memory: 256Mi
+#     limits:
+#       cpu: 250m
+#       memory: 256Mi
 
-loki:
-  image: grafana/loki:latest
+# loki:
+#   image: grafana/loki:latest
 
-  imagePullPolicy: IfNotPresent
+#   imagePullPolicy: IfNotPresent
 
-  replicas: 1
+#   replicas: 1
 
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
+#   resources:
+#     requests:
+#       cpu: 100m
+#       memory: 128Mi
 
-    limits:
-      cpu: 300m
-      memory: 256Mi
+#     limits:
+#       cpu: 300m
+#       memory: 256Mi
 
-promtail:
-  image: grafana/promtail:latest
+# promtail:
+#   image: grafana/promtail:latest
 
-  imagePullPolicy: IfNotPresent
+#   imagePullPolicy: IfNotPresent
 
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
+#   resources:
+#     requests:
+#       cpu: 50m
+#       memory: 64Mi
 
-    limits:
-      cpu: 200m
-      memory: 128Mi
+#     limits:
+#       cpu: 200m
+#       memory: 128Mi
