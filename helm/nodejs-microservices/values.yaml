@@ -5,7 +5,7 @@ image:
 
 #imagePullPolicy: Never #IfNotPresent
 imagePullPolicy:
-  local: Never
+  local: IfNotPresent #Never
   external: IfNotPresent
 
 images:
