@@ -1,5 +1,5 @@
 image:
-  tag: latest
+  tag: 45c82a55d185929cd39d10ac9fa4ac28abe81397
 
 # Small local environment
 resources:
