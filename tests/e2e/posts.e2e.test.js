@@ -110,22 +110,30 @@ describe("Posts E2E", () => {
   });
 
   test("Media should eventually be cleaned up after post deletion", async () => {
-    console.log("b4 cleanup>>", { mediaId, postId })
-    const removed = await waitFor(async () => {
-        const res = await api.get("/media/get", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }        
-        );
+  const removed = await waitFor(async () => {
+    try {
+      const res = await api.get("/media/get", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        console.log("MEDIA RESPONSE:", JSON.stringify(res.data, null, 2));
-
-        return !res.data.result.some(
+      return !res.data.result.some(
         (media) => media._id === mediaId
-        );
-    });
+      );
+    } catch (error) {
+      if (
+        error.response?.status === 404 &&
+        error.response?.data?.message ===
+          "Can't find any media for this user"
+      ) {
+        return true;
+      }
 
-    expect(removed).toBe(true);
+      throw error;
+    }
   });
+
+  expect(removed).toBe(true);
+});
 });
