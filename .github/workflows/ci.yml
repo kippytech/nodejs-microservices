@@ -86,7 +86,7 @@ jobs:
         run: |
           curl --fail-with-body \
             -X POST \
-            http://127.0.0.1:3000/api/auth/register \
+            http://127.0.0.1:3000/v1/auth/register \
             -H "Content-Type: application/json" \
             -d '{
               "username": "daggy",
