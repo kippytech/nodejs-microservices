@@ -8,7 +8,13 @@ async function waitFor(fn, timeout = 10000, interval = 500) {
       if (result) {
         return result;
       }
-    } catch (_) {}
+    } catch (error) {
+      console.log(
+        "waitFor error:",
+        error.response?.status,
+        error.response?.data || error.message
+      );
+    }
 
     await new Promise((resolve) =>
       setTimeout(resolve, interval)
