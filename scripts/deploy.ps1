@@ -44,7 +44,7 @@ Write-Host "Deployment complete."
 
 # Invoke-WebRequest -Uri $url -OutFile argocd.exe
 
-# argocd login localhost:8080 --insecure
+# argocd login localhost:8080 --insecure or argocd login 127.0.0.1:8080 --insecure
 # argocd account get-user-info
 
 # argocd repo add https://github.com/kippytech/nodejs-microservices.git
