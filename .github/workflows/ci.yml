@@ -82,6 +82,18 @@ jobs:
             exit 1
           fi
 
+      - name: Create E2E test user
+        run: |
+          curl --fail-with-body \
+            -X POST \
+            http://127.0.0.1:3000/api/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{
+              "username": "daggy",
+              "email": "daggy@gmail.com",
+              "password": "test123"
+            }'
+
       - name: Run E2E tests
         working-directory: tests
         run: npm test
