@@ -1,7 +1,7 @@
 #namespace: development
 
 image:
-  tag: latest
+  tag: 52c1c1ddf261018e8c1a0ae74a77d4d916d9462f
 
 #imagePullPolicy: Never #IfNotPresent
 imagePullPolicy:
