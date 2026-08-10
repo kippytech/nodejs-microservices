@@ -49,7 +49,8 @@ Write-Host "Deployment complete."
 
 # argocd repo add https://github.com/kippytech/nodejs-microservices.git
 
-# create application.yaml
+# create argocd/application.yaml
+# kubectl apply -f argocd/application.yaml
 
 # test pruning --> kubectl delete statefulset redis -n development
 # test self-healing --> kubectl scale deployment post-service  --replicas=3 -n development
