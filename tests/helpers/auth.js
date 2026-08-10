@@ -6,6 +6,8 @@ async function login() {
     password: "test123",
   });
 
+  console.log("LOGIN RESPONSE:", res.status, res.data);
+
   expect(res.status).toBe(200);
 
   return res.data.accessToken;
