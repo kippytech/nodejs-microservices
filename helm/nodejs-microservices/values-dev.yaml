@@ -1,0 +1,11 @@
+image:
+  tag: latest
+
+# Small local environment
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi

@@ -2,35 +2,26 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 
 metadata:
-  name: nodejs-microservices
+  name: nodejs-microservices-prod
   namespace: argocd
 
 spec:
   project: default
 
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      jsonPointers:
-        - /spec/replicas
-
   source:
     repoURL: https://github.com/kippytech/nodejs-microservices.git
-    targetRevision: HEAD
+    targetRevision: main
     path: helm/nodejs-microservices
 
     helm:
       valueFiles:
         - values.yaml
+        - values-prod.yaml
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: development
+    namespace: production
 
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-
     syncOptions:
       - CreateNamespace=true

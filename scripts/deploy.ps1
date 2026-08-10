@@ -18,6 +18,7 @@ helm upgrade --install nodejs-microservices `
     ./helm/nodejs-microservices `
     --namespace development `
     --create-namespace
+    -f ./helm/nodejs-microservices/values-dev.yaml
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Helm deployment failed."
@@ -54,3 +55,9 @@ Write-Host "Deployment complete."
 
 # test pruning --> kubectl delete statefulset redis -n development
 # test self-healing --> kubectl scale deployment post-service  --replicas=3 -n development
+
+#for helm only:
+# helm lint ./helm/nodejs-microservices
+# helm template nodejs-microservices `
+#   ./helm/nodejs-microservices `
+#   -f ./helm/nodejs-microservices/values-dev.yaml

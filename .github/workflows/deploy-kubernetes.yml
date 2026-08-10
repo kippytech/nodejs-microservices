@@ -74,7 +74,7 @@ jobs:
           # sed -i "s/^  tag:.*/  tag: ${IMAGE_TAG}/" helm/nodejs-microservices/values.yaml
 
           # Preferred version (works regardless of indentation)
-          sed -Ei "s/^([[:space:]]*tag:).*/\1 ${IMAGE_TAG}/" helm/nodejs-microservices/values.yaml
+          sed -Ei "s/^([[:space:]]*tag:).*/\1 ${IMAGE_TAG}/" helm/nodejs-microservices/values-dev.yaml
 
       - name: Commit updated Helm values
         run: |
