@@ -1,7 +1,7 @@
 #namespace: development
 
 image:
-  tag: 52c1c1ddf261018e8c1a0ae74a77d4d916d9462f
+  tag: ff3904a5001dedfa8be1a61f951ba00941cc12e1
 
 #imagePullPolicy: Never #IfNotPresent
 imagePullPolicy:
