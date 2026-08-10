@@ -2,8 +2,8 @@ const axios = require("axios");
 
 jest.setTimeout(30000);
 
-//const API_URL = "http://127.0.0.1:3000";
-const API_URL = "http://api.local";
+const API_URL = "http://127.0.0.1:3000";
+//const API_URL = "http://api.local";
 
 const credentials = {
   email: "daggy@gmail.com",
