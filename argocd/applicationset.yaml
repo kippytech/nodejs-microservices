@@ -19,12 +19,12 @@ spec:
             namespace: development
             valuesFile: values-dev.yaml
 
-            template:
-              spec:
-                syncPolicy:
-                  automated:
-                    prune: true
-                    selfHeal: true
+            # template:
+            #   spec:
+            #     syncPolicy:
+            #       automated:
+            #         prune: true
+            #         selfHeal: true
 
           - environment: staging
             namespace: staging
@@ -49,7 +49,8 @@ spec:
 
     spec:
 
-      project: default
+      #project: default
+      project: nodejs-microservices
 
       ignoreDifferences:
         - group: apps
@@ -74,3 +75,14 @@ spec:
       syncPolicy:
         syncOptions:
           - CreateNamespace=true
+
+  templatePatch: |
+    spec:
+      {{- if eq .environment "dev" }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      {{- end }}

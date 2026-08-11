@@ -1,0 +1,80 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+
+metadata:
+  name: nodejs-microservices
+  namespace: argocd
+
+spec:
+  description: Node.js Microservices project
+
+  sourceRepos:
+    - https://github.com/kippytech/nodejs-microservices.git
+
+  destinations:
+    - namespace: development
+      server: https://kubernetes.default.svc
+
+    - namespace: staging
+      server: https://kubernetes.default.svc
+
+    - namespace: production
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+    - group: ""
+      kind: PersistentVolume
+
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+
+    - group: ""
+      kind: Secret
+
+    - group: ""
+      kind: Service
+
+    - group: ""
+      kind: ServiceAccount
+
+    - group: apps
+      kind: Deployment
+
+    - group: apps
+      kind: StatefulSet
+
+    - group: ""
+      kind: PersistentVolumeClaim
+
+    - group: batch
+      kind: Job
+
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+
+    - group: networking.k8s.io
+      kind: Ingress
+
+    # below are not strictly necessary for this project
+
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+
+    - group: rbac.authorization.k8s.io
+      kind: Role
+
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+
+    - group: batch
+      kind: CronJob
