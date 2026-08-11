@@ -1,0 +1,76 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+
+metadata:
+  name: nodejs-microservices
+  namespace: argocd
+
+spec:
+  goTemplate: true
+
+  goTemplateOptions:
+    - missingkey=error
+
+  generators:
+    - list:
+        elements:
+
+          - environment: dev
+            namespace: development
+            valuesFile: values-dev.yaml
+
+            template:
+              spec:
+                syncPolicy:
+                  automated:
+                    prune: true
+                    selfHeal: true
+
+          - environment: staging
+            namespace: staging
+            valuesFile: values-staging.yaml
+
+          #   template:
+          #     spec:
+          #       syncPolicy: {}
+
+          - environment: prod
+            namespace: production
+            valuesFile: values-prod.yaml
+
+          #   template:
+          #     spec:
+          #       syncPolicy: {}
+
+  template:
+
+    metadata:
+      name: "nodejs-microservices-{{ .environment}}"
+
+    spec:
+
+      project: default
+
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/replicas
+
+      source:
+        repoURL: https://github.com/kippytech/nodejs-microservices.git
+        targetRevision: main
+        path: helm/nodejs-microservices
+
+        helm:
+          valueFiles:
+            - values.yaml
+            - "{{ .valuesFile}}"
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ .namespace}}"
+
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
