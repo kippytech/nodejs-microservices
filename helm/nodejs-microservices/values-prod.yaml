@@ -1,2 +1,6 @@
 image:
   tag: production
+
+ingress:
+  className: nginx
+  host: api.prod.local

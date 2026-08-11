@@ -1,2 +1,6 @@
 image:
   tag: 45c82a55d185929cd39d10ac9fa4ac28abe81397 #staging
+
+ingress:
+  className: nginx
+  host: api.staging.local
