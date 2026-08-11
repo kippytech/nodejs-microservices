@@ -47,6 +47,10 @@ spec:
     metadata:
       name: "nodejs-microservices-{{ .environment}}"
 
+      annotations:
+        notifications.argoproj.io/subscribe.discord-sync-succeeded.discord: ""
+        notifications.argoproj.io/subscribe.discord-sync-failed.discord: ""
+
     spec:
 
       #project: default
