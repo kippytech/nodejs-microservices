@@ -4,8 +4,8 @@ kind: ApplicationSet
 metadata:
   name: nodejs-microservices
   namespace: argocd
-  # annotations:
-  #   argocd.argoproj.io/refresh: hard
+  annotations:
+    argocd.argoproj.io/refresh: hard
 
 spec:
   goTemplate: true
