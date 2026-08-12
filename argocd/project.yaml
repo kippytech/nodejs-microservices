@@ -65,6 +65,9 @@ spec:
     - group: networking.k8s.io
       kind: Ingress
 
+    - group: bitnami.com
+      kind: SealedSecret
+
     # below are not strictly necessary for this project
 
     - group: networking.k8s.io
