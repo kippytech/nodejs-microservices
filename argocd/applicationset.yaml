@@ -4,8 +4,6 @@ kind: ApplicationSet
 metadata:
   name: nodejs-microservices
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/refresh: hard
 
 spec:
   goTemplate: true
@@ -83,8 +81,8 @@ spec:
           - CreateNamespace=true
 
   templatePatch: |
+    {{- if eq .environment "dev" }}
     spec:
-      {{- if eq .environment "dev" }}
       syncPolicy:
         automated:
           prune: true
