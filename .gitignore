@@ -2,3 +2,14 @@ node_modules
 *.log
 #.env
 *-secret-plain.yaml
+
+# Terraform working directories
+**/.terraform/
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+
+# Terraform variable files
+*.tfvars
+*.tfvars.json
