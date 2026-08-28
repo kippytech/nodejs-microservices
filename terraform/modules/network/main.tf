@@ -13,7 +13,7 @@ resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
   tags = {
-    Name        = "${var.environment}-igw"
+    Name = "${var.environment}-igw"
   }
 }
 
@@ -142,7 +142,7 @@ resource "aws_route_table" "private" {
     for_each = var.enable_nat_gateway ? [1] : []
 
     content {
-      cidr_block     = "0.0.0.0/0"
+      cidr_block = "0.0.0.0/0"
       # nat_gateway_id = aws_nat_gateway.this[count.index].id
       nat_gateway_id = aws_nat_gateway.this[0].id
     }
