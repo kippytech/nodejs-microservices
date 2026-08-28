@@ -29,6 +29,8 @@ resource "aws_subnet" "public" {
     Name        = "${var.environment}-public-${count.index + 1}"
     Environment = var.environment
     Tier        = "public"
+
+    "kubernetes.io/role/elb" = "1"
   }
 }
 
@@ -43,6 +45,8 @@ resource "aws_subnet" "private" {
     Name        = "${var.environment}-private-${count.index + 1}"
     Environment = var.environment
     Tier        = "private"
+
+    "kubernetes.io/role/internal-elb" = "1"
   }
 }
 
@@ -73,6 +77,7 @@ variable "enable_nat_gateway" {
   default     = false
 }
 
+/*
 resource "aws_eip" "nat" {
   count = var.enable_nat_gateway ? length(var.availability_zones) : 0
 
@@ -99,6 +104,34 @@ resource "aws_nat_gateway" "this" {
     Environment = var.environment
   }
 }
+*/
+
+resource "aws_eip" "nat" {
+  count = var.enable_nat_gateway ? 1 : 0
+
+  domain = "vpc"
+
+  tags = {
+    Name        = "${var.environment}-nat-eip"
+    Environment = var.environment
+  }
+}
+
+resource "aws_nat_gateway" "this" {
+  count = var.enable_nat_gateway ? 1 : 0
+
+  allocation_id = aws_eip.nat[0].id
+  subnet_id     = aws_subnet.public[0].id
+
+  depends_on = [
+    aws_internet_gateway.this
+  ]
+
+  tags = {
+    Name        = "${var.environment}-nat"
+    Environment = var.environment
+  }
+}
 
 resource "aws_route_table" "private" {
   count = length(var.availability_zones)
@@ -110,7 +143,8 @@ resource "aws_route_table" "private" {
 
     content {
       cidr_block     = "0.0.0.0/0"
-      nat_gateway_id = aws_nat_gateway.this[count.index].id
+      # nat_gateway_id = aws_nat_gateway.this[count.index].id
+      nat_gateway_id = aws_nat_gateway.this[0].id
     }
   }
 

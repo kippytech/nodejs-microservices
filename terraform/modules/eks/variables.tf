@@ -37,3 +37,8 @@ variable "node_desired_size" {
   description = "Desired number of worker nodes"
   type        = number
 }
+
+variable "admin_principal_arn" {
+  description = "IAM principal used to administer the EKS cluster"
+  type        = string
+}
