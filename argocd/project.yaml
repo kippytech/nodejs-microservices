@@ -22,6 +22,9 @@ spec:
       server: https://kubernetes.default.svc
 
   clusterResourceWhitelist:
+    - group: storage.k8s.io
+      kind: StorageClass
+      
     - group: ""
       kind: Namespace
 
