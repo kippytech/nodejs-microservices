@@ -44,7 +44,7 @@ apiGateway:
 
   hpa:
     minReplicas: 1
-    maxReplicas: 3
+    maxReplicas: 2
     averageCpuUtilization: 70
 
 identityService:
