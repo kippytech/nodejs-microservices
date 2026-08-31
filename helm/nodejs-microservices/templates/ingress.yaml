@@ -4,6 +4,8 @@ kind: Ingress
 metadata:
   name: api-gateway
   ##namespace: {{ .Values.namespace }}
+  annotations:
+    alb.ingress.kubernetes.io/target-type: ip
 
 spec:
   ingressClassName: {{ .Values.ingress.className }}
