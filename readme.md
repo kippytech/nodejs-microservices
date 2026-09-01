@@ -1,64 +1,61 @@
-**# Node.js Microservices Platform**
-
-A production-oriented social platform backend built with **\*\*Node.js, Express, MongoDB, Redis, RabbitMQ, BullMQ, and Cloudinary\*\***, with distributed tracing, metrics, centralized logging, automated alerting, containerization, and Kubernetes-based GitOps deployment.
+# Node.js Microservices Platform
+A production-oriented social platform backend built with **Node.js, Express, MongoDB, Redis, RabbitMQ, BullMQ, and Cloudinary**, with distributed tracing, metrics, centralized logging, automated alerting, containerization, and Kubernetes-based GitOps deployment.
 
 The system is designed around independently deployable services and asynchronous event-driven communication, while maintaining reliability through transactional outbox processing, idempotent consumers, retries, dead-letter queues, background jobs, and graceful shutdown.
 
-**## Architecture**
-
+## Architecture
 The application is composed of five Node.js services:
 
-\* **\*\*API Gateway\*\*** — public entry point for client requests, authentication, rate limiting, request correlation, routing, and metrics.
+* **API Gateway** — public entry point for client requests, authentication, rate limiting, request correlation, routing, and metrics.
 
-\* **\*\*Identity Service\*\*** — user registration, authentication, JWT issuance, refresh-token rotation, logout, and authentication rate limiting.
+* **Identity Service** — user registration, authentication, JWT issuance, refresh-token rotation, logout, and authentication rate limiting.
 
-\* **\*\*Post Service\*\*** — post creation, retrieval, deletion, Redis caching, transactional outbox processing, and event publication.
+* **Post Service** — post creation, retrieval, deletion, Redis caching, transactional outbox processing, and event publication.
 
-\* **\*\*Media Service\*\*** — media upload, Cloudinary integration, media association, and asynchronous media cleanup.
+* **Media Service** — media upload, Cloudinary integration, media association, and asynchronous media cleanup.
 
-\* **\*\*Search Service\*\*** — asynchronous indexing and full-text search of posts.
+* **Search Service** — asynchronous indexing and full-text search of posts.
 
 Supporting infrastructure includes:
 
-\* **\*\*MongoDB\*\*** — service-specific persistence.
+* **MongoDB** — service-specific persistence.
 
-\* **\*\*Redis\*\*** — caching, rate limiting, and BullMQ infrastructure.
+* **Redis** — caching, rate limiting, and BullMQ infrastructure.
 
-\* **\*\*RabbitMQ\*\*** — asynchronous service-to-service event communication.
+* **RabbitMQ** — asynchronous service-to-service event communication.
 
-\* **\*\*BullMQ\*\*** — background job processing.
+* **BullMQ** — background job processing.
 
-\* **\*\*Cloudinary\*\*** — media storage.
+* **Cloudinary** — media storage.
 
-\* **\*\*Prometheus\*\*** — metrics collection and alert evaluation.
+* **Prometheus** — metrics collection and alert evaluation.
 
-\* **\*\*Grafana\*\*** — metrics visualization.
+* **Grafana** — metrics visualization.
 
-\* **\*\*Loki\*\*** — centralized log aggregation.
+* **Loki** — centralized log aggregation.
 
-\* **\*\*Promtail\*\*** — log collection.
+* **Promtail** — log collection.
 
-\* **\*\*Jaeger\*\*** — distributed trace visualization.
+* **Jaeger** — distributed trace visualization.
 
-\* **\*\*OpenTelemetry Collector\*\*** — trace collection and export.
+* **OpenTelemetry Collector** — trace collection and export.
 
-\* **\*\*Alertmanager\*\*** — alert routing.
+* **Alertmanager** — alert routing.
 
-\* **\*\*Discord\*\*** — operational alert notifications.
+* **Discord** — operational alert notifications.
 
-\* **\*\*Docker\*\*** — containerization and local orchestration.
+* **Docker** — containerization and local orchestration.
 
-\* **\*\*Kubernetes + Helm\*\*** — production orchestration and deployment packaging.
+* **Kubernetes + Helm** — production orchestration and deployment packaging.
 
-\* **\*\*Argo CD\*\*** — GitOps continuous delivery.
+* **Argo CD** — GitOps continuous delivery.
 
-\* **\*\*GitHub Actions\*\*** — CI/CD automation.
+* **GitHub Actions** — CI/CD automation.
 
-\* **\*\*GitHub Container Registry\*\*** — container image registry.
+* **GitHub Container Registry** — container image registry.
 
-**## High-Level Architecture**
-
-\`\`\`text
+## High-Level Architecture
+```text
 
                               ┌─────────────────────┐
 
@@ -146,111 +143,106 @@ Supporting infrastructure includes:
 
                                            Cloudinary
 
-\`\`\`
+```
 
-**## Service Responsibilities**
-
-**### API Gateway**
-
+## Service Responsibilities
+### API Gateway
 The API Gateway provides the public HTTP entry point to the backend.
 
 Responsibilities include:
 
-\* Routing requests to downstream services.
+* Routing requests to downstream services.
 
-\* JWT validation for protected routes.
+* JWT validation for protected routes.
 
-\* Request correlation IDs.
+* Request correlation IDs.
 
-\* HTTP request metrics.
+* HTTP request metrics.
 
-\* Structured request/response logging.
+* Structured request/response logging.
 
-\* Security headers through Helmet.
+* Security headers through Helmet.
 
-\* CORS configuration.
+* CORS configuration.
 
-\* Distributed rate limiting using Redis.
+* Distributed rate limiting using Redis.
 
-\* Downstream correlation propagation.
+* Downstream correlation propagation.
 
-\* HTTP server timeout configuration.
+* HTTP server timeout configuration.
 
-\* Graceful shutdown.
+* Graceful shutdown.
 
-\* Health and readiness endpoints.
+* Health and readiness endpoints.
 
 The gateway exposes the services through a unified API rather than requiring clients to communicate directly with internal services.
 
-**### Identity Service**
-
+### Identity Service
 The Identity Service owns authentication and user identity.
 
 It provides:
 
-\* User registration.
+* User registration.
 
-\* User login.
+* User login.
 
-\* JWT access tokens.
+* JWT access tokens.
 
-\* Refresh tokens.
+* Refresh tokens.
 
-\* Refresh-token rotation.
+* Refresh-token rotation.
 
-\* Logout/revocation through refresh-token deletion.
+* Logout/revocation through refresh-token deletion.
 
-\* Argon2 password hashing.
+* Argon2 password hashing.
 
-\* MongoDB persistence.
+* MongoDB persistence.
 
-\* Redis-backed authentication rate limiting.
+* Redis-backed authentication rate limiting.
 
-\* TTL-based refresh-token expiration.
+* TTL-based refresh-token expiration.
 
-\* Health and readiness checks.
+* Health and readiness checks.
 
-\* Graceful shutdown.
+* Graceful shutdown.
 
 Registration and login attempts are rate limited using Redis-backed \`rate-limiter-flexible\`.
 
-**### Post Service**
-
+### Post Service
 The Post Service owns post creation, retrieval, deletion, caching, and event publication.
 
 It provides:
 
-\* Create post.
+* Create post.
 
-\* Retrieve posts.
+* Retrieve posts.
 
-\* Retrieve an individual post.
+* Retrieve an individual post.
 
-\* Delete post.
+* Delete post.
 
-\* Redis caching.
+* Redis caching.
 
-\* Cache invalidation.
+* Cache invalidation.
 
-\* MongoDB transactions.
+* MongoDB transactions.
 
-\* Transactional Outbox.
+* Transactional Outbox.
 
-\* Outbox worker.
+* Outbox worker.
 
-\* Outbox retry and failure handling.
+* Outbox retry and failure handling.
 
-\* Outbox administrative inspection/retry operations.
+* Outbox administrative inspection/retry operations.
 
 Post creation and deletion use MongoDB transactions to atomically persist the database change together with the corresponding outbox event.
 
-**### Media Service**
-
+### Media Service
 The Media Service manages uploaded media.
 
 The upload flow is:
 
-\`\`\`text
+```text
 
 Client
 
@@ -274,7 +266,7 @@ Media Service
 
   └──► MongoDB
 
-\`\`\`
+```
 
 Media uploads are protected by a 5 MB upload limit and use memory-backed Multer storage before being uploaded to Cloudinary.
 
@@ -284,21 +276,20 @@ If a Cloudinary upload succeeds but the subsequent database operation fails, the
 
 When a post is deleted, the Media Service receives the \`post.deleted\` event and queues media deletion jobs through BullMQ.
 
-**### Search Service**
-
+### Search Service
 The Search Service maintains a search-oriented representation of posts.
 
 It consumes:
 
-\* \`post.created\`
+* \`post.created\`
 
-\* \`post.deleted\`
+* \`post.deleted\`
 
 Events are processed asynchronously through RabbitMQ.
 
 The service maintains a dedicated search collection with a MongoDB text index:
 
-\`\`\`text
+```text
 
 Post Service
 
@@ -322,19 +313,18 @@ Search Service
 
 Search MongoDB
 
-\`\`\`
+```
 
 Search queries use MongoDB's text search and text relevance scores.
 
 Event consumers use a \`ProcessedEvent\` collection with a unique \`eventId\` to provide idempotent event processing.
 
-**## Event-Driven Architecture**
-
+## Event-Driven Architecture
 RabbitMQ uses a durable topic exchange for application events.
 
-\`\`\`text
+```text
 
-                         facebook\_events
+                         facebook_events
 
                               │
 
@@ -354,51 +344,49 @@ RabbitMQ uses a durable topic exchange for application events.
 
           Service      Service Service     Service
 
-\`\`\`
+```
 
 Consumers use routing keys to select events and dispatch them to the appropriate handler.
 
-The consumer architecture intentionally uses **\*\*one queue per service instance\*\*** with routing-key dispatch inside the consumer. This avoids assuming that RabbitMQ will route different event types to different consumers merely because they are consuming from the same queue.
+The consumer architecture intentionally uses **one queue per service instance** with routing-key dispatch inside the consumer. This avoids assuming that RabbitMQ will route different event types to different consumers merely because they are consuming from the same queue.
 
-**### RabbitMQ Reliability**
-
+### RabbitMQ Reliability
 The messaging layer includes:
 
-\* Durable exchanges.
+* Durable exchanges.
 
-\* Durable queues.
+* Durable queues.
 
-\* Persistent messages.
+* Persistent messages.
 
-\* Publisher confirms.
+* Publisher confirms.
 
-\* Consumer acknowledgements.
+* Consumer acknowledgements.
 
-\* Consumer prefetch.
+* Consumer prefetch.
 
-\* Dead-letter exchange.
+* Dead-letter exchange.
 
-\* Dead-letter queue.
+* Dead-letter queue.
 
-\* Consumer failure metrics.
+* Consumer failure metrics.
 
-\* Event processing duration metrics.
+* Event processing duration metrics.
 
-\* Correlation ID propagation.
+* Correlation ID propagation.
 
-\* OpenTelemetry trace propagation.
+* OpenTelemetry trace propagation.
 
-\* Graceful RabbitMQ shutdown.
+* Graceful RabbitMQ shutdown.
 
 Failed messages are rejected without immediate requeue and can therefore reach the configured dead-letter infrastructure.
 
-**## Transactional Outbox**
-
+## Transactional Outbox
 The Post Service uses the transactional outbox pattern to avoid the dual-write problem.
 
 Instead of:
 
-\`\`\`text
+```text
 
 Database transaction
 
@@ -410,11 +398,11 @@ Database transaction
 
        └── publish RabbitMQ event
 
-\`\`\`
+```
 
 the service performs:
 
-\`\`\`text
+```text
 
 MongoDB Transaction
 
@@ -444,7 +432,7 @@ MongoDB Transaction
 
              RabbitMQ
 
-\`\`\`
+```
 
 This means the post and its corresponding event are persisted atomically.
 
@@ -472,13 +460,12 @@ The outbox has indexes supporting pending-event processing, published-event clea
 
 An administrative API also allows failed events to be inspected and retried.
 
-**## Idempotent Event Processing**
-
+## Idempotent Event Processing
 Asynchronous messaging can result in duplicate delivery.
 
 Consumers therefore maintain a \`ProcessedEvent\` collection with a unique \`eventId\`.
 
-\`\`\`text
+```text
 
 RabbitMQ Event
 
@@ -502,7 +489,7 @@ New      Duplicate
 
 Process   Ignore
 
-\`\`\`
+```
 
 Search Service performs event registration and its business operation inside the same MongoDB transaction.
 
@@ -510,13 +497,12 @@ This prevents a duplicate event from producing duplicate search records.
 
 Media Service additionally uses deterministic BullMQ job IDs when queuing media deletion jobs.
 
-**## Background Processing**
-
+## Background Processing
 BullMQ is used for work that does not need to complete synchronously with an HTTP request.
 
 The Media Service uses background jobs for media deletion and cleanup.
 
-\`\`\`text
+```text
 
 Post deleted
 
@@ -552,35 +538,34 @@ Media Delete Worker
 
      └──► MongoDB
 
-\`\`\`
+```
 
 Jobs support:
 
-\* Concurrent processing.
+* Concurrent processing.
 
-\* Retries.
+* Retries.
 
-\* Exponential backoff.
+* Exponential backoff.
 
-\* Deterministic job IDs.
+* Deterministic job IDs.
 
-\* Completion/failure events.
+* Completion/failure events.
 
-\* Prometheus metrics.
+* Prometheus metrics.
 
-\* OpenTelemetry tracing.
+* OpenTelemetry tracing.
 
-\* Graceful worker shutdown.
+* Graceful worker shutdown.
 
-**## Caching**
-
+## Caching
 Redis is used by the Post Service for response caching.
 
 Cached data includes:
 
-\* Post lists.
+* Post lists.
 
-\* Individual posts.
+* Individual posts.
 
 Cache invalidation uses Redis \`UNLINK\` rather than blocking deletion.
 
@@ -590,17 +575,16 @@ Cached entries have explicit expiration periods.
 
 Redis is also used for authentication rate limiting and BullMQ infrastructure.
 
-**## Authentication**
-
+## Authentication
 Authentication is JWT-based.
 
-\`\`\`text
+```text
 
 Client
 
   │
 
-  │ Authorization: Bearer \<JWT>
+  │ Authorization: Bearer <JWT>
 
   ▼
 
@@ -620,59 +604,56 @@ API Gateway
 
       downstream service
 
-\`\`\`
+```
 
 The gateway validates the access token and forwards authenticated identity information to protected services.
 
 The Identity Service uses:
 
-\* Argon2 password hashing.
+* Argon2 password hashing.
 
-\* Access tokens.
+* Access tokens.
 
-\* Refresh tokens.
+* Refresh tokens.
 
-\* Refresh-token rotation.
+* Refresh-token rotation.
 
-\* MongoDB TTL indexes.
+* MongoDB TTL indexes.
 
-\* Redis-backed login/register rate limiting.
+* Redis-backed login/register rate limiting.
 
-**## Observability**
-
+## Observability
 Observability is built into the application and infrastructure rather than being added only at deployment time.
 
-**### Metrics**
-
+### Metrics
 Each service exposes Prometheus metrics through \`/metrics\`.
 
 All services collect Node.js default metrics as well as service-specific application metrics.
 
 Common HTTP metrics include:
 
-\* \`http\_request\_duration\_seconds\`
+* \`http_request_duration_seconds\`
 
-\* \`http\_requests\_total\`
+* \`http_requests_total\`
 
 Service-specific metrics include metrics for operations such as:
 
-\* Outbox publication.
+* Outbox publication.
 
-\* RabbitMQ event processing.
+* RabbitMQ event processing.
 
-\* BullMQ job processing.
+* BullMQ job processing.
 
-\* Cloudinary uploads.
+* Cloudinary uploads.
 
-This means the metrics exposed by \`metrics.js\` are **\*\*service-specific\*\*** rather than one identical metrics module copied across every service.
+This means the metrics exposed by \`metrics.js\` are **service-specific** rather than one identical metrics module copied across every service.
 
-**### Distributed Tracing**
-
+### Distributed Tracing
 OpenTelemetry is used for distributed tracing.
 
 The tracing path can span:
 
-\`\`\`text
+```text
 
 HTTP Request
 
@@ -718,7 +699,7 @@ BullMQ Worker
 
 Cloudinary
 
-\`\`\`
+```
 
 Trace context is propagated through asynchronous boundaries using OpenTelemetry propagation headers.
 
@@ -726,31 +707,29 @@ The application also maintains correlation IDs using Node.js \`AsyncLocalStorage
 
 Production logs include:
 
-\* Service name.
+* Service name.
 
-\* Correlation ID.
+* Correlation ID.
 
-\* Trace ID.
+* Trace ID.
 
-\* Span ID.
+* Span ID.
 
-\* Timestamp.
+* Timestamp.
 
-\* Structured metadata.
+* Structured metadata.
 
-\* Error stack traces.
+* Error stack traces.
 
-**### Logging**
-
+### Logging
 Winston provides application logging.
 
 Development logs are human-readable, while production logs are emitted as structured JSON suitable for centralized collection.
 
-**### Centralized Logging**
-
+### Centralized Logging
 The logging pipeline uses:
 
-\`\`\`text
+```text
 
 Kubernetes Pods
 
@@ -772,17 +751,16 @@ Kubernetes Pods
 
    Grafana
 
-\`\`\`
+```
 
 The current Promtail configuration uses Kubernetes pod discovery and CRI log parsing.
 
 An earlier Docker discovery configuration is retained as historical configuration for the pre-Kubernetes environment.
 
-**### Metrics and Alerting**
-
+### Metrics and Alerting
 Prometheus scrapes each service's \`/metrics\` endpoint.
 
-\`\`\`text
+```text
 
 Services
 
@@ -806,29 +784,28 @@ Prometheus
 
           Discord
 
-\`\`\`
+```
 
 Configured alerts include:
 
-\* Service downtime.
+* Service downtime.
 
-\* High HTTP latency.
+* High HTTP latency.
 
-\* High HTTP 5xx rates.
+* High HTTP 5xx rates.
 
-\* RabbitMQ consumer failures.
+* RabbitMQ consumer failures.
 
-\* BullMQ job failures.
+* BullMQ job failures.
 
-\* Outbox publication failures.
+* Outbox publication failures.
 
 Alertmanager sends alerts to Discord and can also send resolved notifications.
 
-**### Distributed Trace Visualization**
-
+### Distributed Trace Visualization
 OpenTelemetry Collector receives OTLP traces and exports them to Jaeger.
 
-\`\`\`text
+```text
 
 Node.js Services
 
@@ -846,10 +823,9 @@ OpenTelemetry Collector
 
     Jaeger
 
-\`\`\`
+```
 
-**## Health and Readiness**
-
+## Health and Readiness
 Services expose health/readiness endpoints.
 
 Health answers whether the process itself is alive.
@@ -860,7 +836,7 @@ For services with RabbitMQ/MongoDB dependencies, readiness checks dependency sta
 
 This allows an orchestrator to distinguish:
 
-\`\`\`text
+```text
 
 Process is alive
 
@@ -868,111 +844,107 @@ Process is alive
 
 Process is ready to receive traffic
 
-\`\`\`
+```
 
-**## Graceful Shutdown**
-
+## Graceful Shutdown
 Services handle \`SIGINT\` and \`SIGTERM\`.
 
 The shutdown sequence closes active resources before the process exits.
 
 Depending on the service, this includes:
 
-\* HTTP server.
+* HTTP server.
 
-\* MongoDB connections.
+* MongoDB connections.
 
-\* Redis connections.
+* Redis connections.
 
-\* RabbitMQ channels/connections.
+* RabbitMQ channels/connections.
 
-\* BullMQ workers.
+* BullMQ workers.
 
-\* Outbox workers.
+* Outbox workers.
 
-\* Background cleanup intervals.
+* Background cleanup intervals.
 
-\* OpenTelemetry SDK.
+* OpenTelemetry SDK.
 
 A shutdown timeout prevents a process from remaining indefinitely stuck during termination.
 
-**## Resilience**
-
+## Resilience
 The project incorporates several layers of failure handling:
 
-\* Startup dependency retries.
+* Startup dependency retries.
 
-\* HTTP request timeouts.
+* HTTP request timeouts.
 
-\* Redis retry/reconnection behavior.
+* Redis retry/reconnection behavior.
 
-\* RabbitMQ connection monitoring.
+* RabbitMQ connection monitoring.
 
-\* RabbitMQ publisher confirms.
+* RabbitMQ publisher confirms.
 
-\* RabbitMQ dead-lettering.
+* RabbitMQ dead-lettering.
 
-\* Event-processing retries.
+* Event-processing retries.
 
-\* Outbox retries.
+* Outbox retries.
 
-\* Outbox stale-processing recovery.
+* Outbox stale-processing recovery.
 
-\* BullMQ retries.
+* BullMQ retries.
 
-\* Exponential backoff.
+* Exponential backoff.
 
-\* Cloudinary operation timeouts.
+* Cloudinary operation timeouts.
 
-\* Cloudinary compensating actions.
+* Cloudinary compensating actions.
 
-\* Idempotent event processing.
+* Idempotent event processing.
 
-\* Health/readiness checks.
+* Health/readiness checks.
 
-\* Graceful shutdown.
+* Graceful shutdown.
 
-**## Security**
-
+## Security
 Security-related measures include:
 
-\* JWT authentication.
+* JWT authentication.
 
-\* Argon2 password hashing.
+* Argon2 password hashing.
 
-\* Helmet security headers.
+* Helmet security headers.
 
-\* CORS.
+* CORS.
 
-\* Redis-backed rate limiting.
+* Redis-backed rate limiting.
 
-\* Login attempt limiting.
+* Login attempt limiting.
 
-\* Registration attempt limiting.
+* Registration attempt limiting.
 
-\* Environment-based secrets.
+* Environment-based secrets.
 
-\* Containerized service isolation.
+* Containerized service isolation.
 
-\* Protected internal service communication through the gateway architecture.
+* Protected internal service communication through the gateway architecture.
 
-**## Docker**
-
-The services use **\*\*multi-stage Docker builds\*\*** with separate development and production targets.
+## Docker
+The services use **multi-stage Docker builds** with separate development and production targets.
 
 Example structure:
 
-\`\`\`dockerfile
+```dockerfile
 
 FROM node:24-alpine AS base
 
 WORKDIR /app
 
-COPY package\*.json ./
+COPY package*.json ./
 
 FROM base AS development
 
-ENV NODE\_ENV=development
+ENV NODE_ENV=development
 
 RUN npm ci
 
@@ -984,7 +956,7 @@ CMD ["npm", "run", "dev"]
 
 FROM base AS production
 
-ENV NODE\_ENV=production
+ENV NODE_ENV=production
 
 RUN npm ci --omit=dev
 
@@ -994,17 +966,16 @@ EXPOSE 3000
 
 CMD ["npm", "start"]
 
-\`\`\`
+```
 
 The development target provides the development dependencies and development command, while the production target installs only production dependencies.
 
-**## Deployment Architecture**
-
-Kubernetes manifests exist in the repository, but the project uses **\*\*Helm as its Kubernetes deployment/package management mechanism\*\***.
+## Deployment Architecture
+Kubernetes manifests exist in the repository, but the project uses **Helm as its Kubernetes deployment/package management mechanism**.
 
 The Kubernetes deployment path includes:
 
-\`\`\`text
+```text
 
 GitHub
 
@@ -1044,14 +1015,12 @@ GitHub Actions
 
         Kubernetes
 
-\`\`\`
+```
 
 The repository therefore separates application image building from Kubernetes deployment through a GitOps workflow.
 
-**## CI/CD**
-
-**### Continuous Integration**
-
+## CI/CD
+### Continuous Integration
 GitHub Actions runs CI on pushes and pull requests targeting \`main\` and \`develop\`.
 
 The CI workflow:
@@ -1080,8 +1049,7 @@ The CI workflow:
 
 12\. Shuts down the environment.
 
-**### Kubernetes GitOps Deployment**
-
+### Kubernetes GitOps Deployment
 After successful CI on \`main\`, the Kubernetes deployment workflow:
 
 1\. Identifies whether application code changed.
@@ -1098,17 +1066,15 @@ After successful CI on \`main\`, the Kubernetes deployment workflow:
 
 Argo CD can then reconcile the desired Kubernetes state from Git.
 
-**### Container Registry**
-
+### Container Registry
 Production images are published to GitHub Container Registry under the project's GitHub organization/account namespace.
 
-**## End-to-End Testing**
-
+## End-to-End Testing
 The E2E suite verifies an asynchronous business workflow rather than testing isolated endpoints only.
 
 The main flow is:
 
-\`\`\`text
+```text
 
 Register
 
@@ -1192,13 +1158,13 @@ Delete Post
 
 Verify Media Cleanup
 
-\`\`\`
+```
 
 Because the search indexing and media cleanup operations are asynchronous, the tests explicitly wait for eventual completion rather than assuming i**# Deployment**
 
 The project can be reproduced at three infrastructure levels:
 
-\`\`\`text
+```text
 
 Docker Compose
 
@@ -1210,7 +1176,7 @@ Kubernetes / Kind
 
 AWS / EKS
 
-\`\`\`
+```
 
 The application and service architecture remains the same; each level adds
 more infrastructure and operational capabilities.
@@ -1221,31 +1187,30 @@ more infrastructure and operational capabilities.
 
 <details>
 
-\<summary>\<strong>1. Docker Compose — local development / complete local stack\</strong>\</summary>
+<summary><strong>1. Docker Compose — local development / complete local stack</strong></summary>
 
-**## Prerequisites**
-
+## Prerequisites
 Install:
 
-\* Git
+* Git
 
-\* Node.js 24
+* Node.js 24
 
-\* Docker Desktop / Docker Engine with Docker Compose
+* Docker Desktop / Docker Engine with Docker Compose
 
 Clone the repository:
 
-\`\`\`bash
+```bash
 
 git clone https\://github.com/kippytech/nodejs-microservices
 
 cd nodejs-microservices
 
-\`\`\`
+```
 
 Install dependencies for the services and E2E tests:
 
-\`\`\`bash
+```bash
 
 cd api-gateway && npm ci && cd ..
 
@@ -1259,35 +1224,35 @@ cd search-service && npm ci && cd ..
 
 cd tests && npm ci && cd ..
 
-\`\`\`
+```
 
 Configure the required environment variables in the service \`.env\` files.
 
 The Compose environment provides the infrastructure services:
 
-\* MongoDB
+* MongoDB
 
-\* Redis
+* Redis
 
-\* RabbitMQ
+* RabbitMQ
 
-\* Prometheus
+* Prometheus
 
-\* Grafana
+* Grafana
 
-\* Alertmanager
+* Alertmanager
 
-\* Jaeger
+* Jaeger
 
-\* OpenTelemetry Collector
+* OpenTelemetry Collector
 
-\* Loki
+* Loki
 
-\* Promtail
+* Promtail
 
 Start the complete development environment:
 
-\`\`\`bash
+```bash
 
 docker compose \\
 
@@ -1297,11 +1262,11 @@ docker compose \\
 
   up -d --build
 
-\`\`\`
+```
 
 Check the running services:
 
-\`\`\`bash
+```bash
 
 docker compose \\
 
@@ -1311,27 +1276,27 @@ docker compose \\
 
   ps
 
-\`\`\`
+```
 
 The API Gateway is available on:
 
-\`\`\`text
+```text
 
 http\://localhost:3000
 
-\`\`\`
+```
 
 Health:
 
-\`\`\`text
+```text
 
 http\://localhost:3000/api/health
 
-\`\`\`
+```
 
 The local observability interfaces include:
 
-\`\`\`text
+```text
 
 Prometheus   → http\://localhost:9090
 
@@ -1341,21 +1306,21 @@ Alertmanager → http\://localhost:9093
 
 Jaeger       → http\://localhost:16686
 
-\`\`\`
+```
 
 Run the E2E tests:
 
-\`\`\`bash
+```bash
 
 cd tests
 
 npm test
 
-\`\`\`
+```
 
 Stop the environment:
 
-\`\`\`bash
+```bash
 
 docker compose \\
 
@@ -1365,65 +1330,63 @@ docker compose \\
 
   down -v
 
-\`\`\`
+```
 
-\</details>
+</details>
 
 \
 
 <details>
 
-\<summary>\<strong>2. Kubernetes + Helm — Kubernetes deployment / GitOps environment\</strong>\</summary>
+<summary><strong>2. Kubernetes + Helm — Kubernetes deployment / GitOps environment</strong></summary>
 
-**## Prerequisites**
-
+## Prerequisites
 Install/configure:
 
-\* Docker
+* Docker
 
-\* Kubernetes
+* Kubernetes
 
-\* \`kubectl\`
+* \`kubectl\`
 
-\* Helm
+* Helm
 
-\* access to the target Kubernetes cluster
+* access to the target Kubernetes cluster
 
-\* access to the project's GitHub Container Registry images
+* access to the project's GitHub Container Registry images
 
-\* Argo CD for the GitOps deployment path
+* Argo CD for the GitOps deployment path
 
-The repository contains Kubernetes resources, but **\*\*Helm is used as the project's Kubernetes packaging and deployment mechanism\*\***.
+The repository contains Kubernetes resources, but **Helm is used as the project's Kubernetes packaging and deployment mechanism**.
 
 The Helm chart is located under:
 
-\`\`\`text
+```text
 
 helm/nodejs-microservices/
 
-\`\`\`
+```
 
 The chart contains environment-specific values, including development configuration.
 
-**## Build and publish images**
-
+## Build and publish images
 Production images are built from the production stage of each service's multi-stage Dockerfile:
 
-\`\`\`bash
+```bash
 
 docker build \\
 
   --target production \\
 
-  -t ghcr.io/\<namespace>/api-gateway:\<tag> \\
+  -t ghcr.io/<namespace>/api-gateway:<tag> \\
 
   ./api-gateway
 
-\`\`\`
+```
 
 The same pattern applies to:
 
-\`\`\`text
+```text
 
 identity-service
 
@@ -1433,51 +1396,49 @@ media-service
 
 search-service
 
-\`\`\`
+```
 
 Images are pushed to GHCR.
 
 The project's GitHub Actions deployment workflow automates this image-building and publishing process.
 
-**## Helm deployment**
-
+## Helm deployment
 The Helm chart is used to render/deploy the Kubernetes resources.
 
 A typical Helm workflow is:
 
-\`\`\`bash
+```bash
 
 helm lint helm/nodejs-microservices
 
-\`\`\`
+```
 
 Render the manifests:
 
-\`\`\`bash
+```bash
 
 helm template nodejs-microservices \\
 
   helm/nodejs-microservices
 
-\`\`\`
+```
 
 Install or upgrade the release:
 
-\`\`\`bash
+```bash
 
 helm upgrade --install nodejs-microservices \\
 
   helm/nodejs-microservices
 
-\`\`\`
+```
 
 Environment-specific values are supplied through the project's Helm values files.
 
-**## GitOps deployment**
-
+## GitOps deployment
 The preferred project deployment flow is GitOps:
 
-\`\`\`text
+```text
 
 Application change
 
@@ -1521,73 +1482,71 @@ GitHub Actions
 
                Kubernetes
 
-\`\`\`
+```
 
 Argo CD continuously reconciles the Kubernetes environment against the desired state stored in Git.
 
-**## Verify deployment**
-
+## Verify deployment
 List Helm releases:
 
-\`\`\`bash
+```bash
 
 helm list
 
-\`\`\`
+```
 
 List Kubernetes workloads:
 
-\`\`\`bash
+```bash
 
 kubectl get pods
 
-\`\`\`
+```
 
 List services:
 
-\`\`\`bash
+```bash
 
 kubectl get services
 
-\`\`\`
+```
 
 Inspect deployment state:
 
-\`\`\`bash
+```bash
 
 kubectl get deployments
 
-\`\`\`
+```
 
 Inspect a particular pod:
 
-\`\`\`bash
+```bash
 
-kubectl describe pod \<pod-name>
+kubectl describe pod <pod-name>
 
-\`\`\`
+```
 
 View logs:
 
-\`\`\`bash
+```bash
 
-kubectl logs \<pod-name>
+kubectl logs <pod-name>
 
-\`\`\`
+```
 
-\</details>
+</details>
 
 <details>
 
 <summary><strong>3. AWS / EKS — cloud deployment with Terraform + ALB + EBS + Argo CD</strong></summary>
 
-The project can be deployed to AWS using **\*\*Terraform + Amazon EKS + Kubernetes + Argo CD\*\***.
+The project can be deployed to AWS using **Terraform + Amazon EKS + Kubernetes + Argo CD**.
 
 The AWS environment takes the Kubernetes deployment used locally with Kind and moves it into a real cloud environment with a production-style VPC, private worker nodes, managed Kubernetes, persistent EBS storage, AWS Load Balancer Controller, and a public Application Load Balancer.
 
-**### AWS Architecture**
-
-\`\`\`text
+### AWS Architecture
+```text
 
                          Internet
 
@@ -1665,53 +1624,51 @@ The AWS environment takes the Kubernetes deployment used locally with Kind and m
 
                     └──────────────┘
 
-\`\`\`
+```
 
-**### AWS Components**
-
+### AWS Components
 The Terraform configuration provisions and configures:
 
-\* **\*\*VPC\*\*** with a \`10.0.0.0/16\` CIDR
+* **VPC** with a \`10.0.0.0/16\` CIDR
 
-\* **\*\*Two Availability Zones\*\***
+* **Two Availability Zones**
 
-\* **\*\*Two public subnets\*\***
+* **Two public subnets**
 
-\* **\*\*Two private subnets\*\***
+* **Two private subnets**
 
-\* **\*\*Internet Gateway\*\***
+* **Internet Gateway**
 
-\* **\*\*NAT Gateway\*\***
+* **NAT Gateway**
 
-\* **\*\*Elastic IP\*\*** for the NAT Gateway
+* **Elastic IP** for the NAT Gateway
 
-\* **\*\*Amazon EKS cluster\*\***
+* **Amazon EKS cluster**
 
-\* **\*\*EC2-based EKS worker nodes\*\***
+* **EC2-based EKS worker nodes**
 
-\* EKS node autoscaling configuration
+* EKS node autoscaling configuration
 
-\* **\*\*AWS Load Balancer Controller\*\***
+* **AWS Load Balancer Controller**
 
-\* **\*\*Application Load Balancer\*\***
+* **Application Load Balancer**
 
-\* **\*\*EBS CSI Driver\*\***
+* **EBS CSI Driver**
 
-\* **\*\*EKS Pod Identity Agent\*\***
+* **EKS Pod Identity Agent**
 
-\* IAM roles and policies for EKS components
+* IAM roles and policies for EKS components
 
-\* Kubernetes workloads deployed through **\*\*Helm\*\***
+* Kubernetes workloads deployed through **Helm**
 
-\* **\*\*Argo CD\*\*** for GitOps-based deployment
+* **Argo CD** for GitOps-based deployment
 
-\* Persistent storage backed by **\*\*Amazon EBS gp3\*\***
+* Persistent storage backed by **Amazon EBS gp3**
 
-**### Network Design**
-
+### Network Design
 The VPC separates public-facing infrastructure from Kubernetes worker nodes.
 
-\`\`\`text
+```text
 
 VPC: 10.0.0.0/16
 
@@ -1745,21 +1702,20 @@ VPC: 10.0.0.0/16
 
         └── EKS worker nodes
 
-\`\`\`
+```
 
 Public subnets have a default route through the Internet Gateway.
 
 Private subnets use the NAT Gateway for outbound internet access without exposing the worker nodes directly to the public internet.
 
-The Kubernetes worker nodes are therefore placed in **\*\*private subnets\*\***, while the public Application Load Balancer is placed in the public subnets.
+The Kubernetes worker nodes are therefore placed in **private subnets**, while the public Application Load Balancer is placed in the public subnets.
 
-**### Infrastructure as Code**
-
+### Infrastructure as Code
 AWS infrastructure is defined using Terraform.
 
 The configuration is organized into reusable modules:
 
-\`\`\`text
+```text
 
 terraform/
 
@@ -1797,11 +1753,11 @@ terraform/
 
         └── aws-load-balancer-controller-iam-policy.json
 
-\`\`\`
+```
 
 The development environment composes the network and EKS modules:
 
-\`\`\`hcl
+```hcl
 
 module "network" {
 
@@ -1809,9 +1765,9 @@ module "network" {
 
   environment = "dev"
 
-  vpc\_cidr = "10.0.0.0/16"
+  vpc_cidr = "10.0.0.0/16"
 
-  availability\_zones = [
+  availability_zones = [
 
     "eu-north-1a",
 
@@ -1819,7 +1775,7 @@ module "network" {
 
   ]
 
-  public\_subnet\_cidrs = [
+  public_subnet_cidrs = [
 
     "10.0.1.0/24",
 
@@ -1827,7 +1783,7 @@ module "network" {
 
   ]
 
-  private\_subnet\_cidrs = [
+  private_subnet_cidrs = [
 
     "10.0.101.0/24",
 
@@ -1835,15 +1791,15 @@ module "network" {
 
   ]
 
-  enable\_nat\_gateway = true
+  enable_nat_gateway = true
 
 }
 
-\`\`\`
+```
 
 The EKS cluster is then deployed into the private subnets:
 
-\`\`\`hcl
+```hcl
 
 module "eks" {
 
@@ -1851,37 +1807,36 @@ module "eks" {
 
   environment = "dev"
 
-  cluster\_name       = "nodejs-microservices-dev"
+  cluster_name       = "nodejs-microservices-dev"
 
-  kubernetes\_version = "1.35"
+  kubernetes_version = "1.35"
 
-  private\_subnet\_ids = module.network.private\_subnet\_ids
+  private_subnet_ids = module.network.private_subnet_ids
 
-  node\_instance\_types = [
+  node_instance_types = [
 
     "t3.small"
 
   ]
 
-  node\_min\_size     = 1
+  node_min_size     = 1
 
-  node\_max\_size     = 3
+  node_max_size     = 3
 
-  node\_desired\_size = 3
+  node_desired_size = 3
 
 }
 
-\`\`\`
+```
 
 This allows the infrastructure to be recreated rather than manually configured through the AWS console.
 
-**### Amazon EKS**
-
-The Kubernetes cluster runs on **\*\*Amazon EKS\*\*** with EC2 worker nodes.
+### Amazon EKS
+The Kubernetes cluster runs on **Amazon EKS** with EC2 worker nodes.
 
 The current development configuration uses:
 
-\`\`\`text
+```text
 
 Kubernetes: 1.35
 
@@ -1893,61 +1848,58 @@ Minimum nodes: 1
 
 Maximum nodes: 3
 
-\`\`\`
+```
 
 The worker nodes are deployed exclusively into the private subnets.
 
 The EKS configuration also establishes the required IAM roles for:
 
-\* EKS control plane
+* EKS control plane
 
-\* EC2 worker nodes
+* EC2 worker nodes
 
-\* EBS CSI
+* EBS CSI
 
-\* AWS Load Balancer Controller
+* AWS Load Balancer Controller
 
-**### EKS Pod Identity**
-
-AWS IAM permissions for Kubernetes workloads are provided through **\*\*EKS Pod Identity\*\***.
+### EKS Pod Identity
+AWS IAM permissions for Kubernetes workloads are provided through **EKS Pod Identity**.
 
 The infrastructure enables the:
 
-\`\`\`text
+```text
 
 eks-pod-identity-agent
 
-\`\`\`
+```
 
 and associates IAM roles with Kubernetes service accounts.
 
 This is used for components such as:
 
-\* EBS CSI Driver
+* EBS CSI Driver
 
-\* AWS Load Balancer Controller
+* AWS Load Balancer Controller
 
 This avoids giving broad AWS credentials directly to application containers.
 
-**### EBS CSI and Persistent Storage**
-
-The cluster uses the **\*\*AWS EBS CSI Driver\*\*** to allow Kubernetes workloads to provision persistent EBS-backed storage.
+### EBS CSI and Persistent Storage
+The cluster uses the **AWS EBS CSI Driver** to allow Kubernetes workloads to provision persistent EBS-backed storage.
 
 The EBS CSI driver is installed as an EKS add-on and receives its AWS permissions through EKS Pod Identity.
 
-The project uses **\*\*gp3 EBS volumes\*\*** for persistent Kubernetes storage.
+The project uses **gp3 EBS volumes** for persistent Kubernetes storage.
 
 This provides a transition from ephemeral container storage in the local environment to cloud-backed persistent storage in AWS.
 
-**### Public Application Load Balancer**
-
-The Kubernetes application is publicly accessible through an **\*\*AWS Application Load Balancer\*\***.
+### Public Application Load Balancer
+The Kubernetes application is publicly accessible through an **AWS Application Load Balancer**.
 
 The AWS Load Balancer Controller integrates Kubernetes \`Ingress\` resources with AWS and provisions/manages the ALB.
 
 The flow is:
 
-\`\`\`text
+```text
 
 Internet
 
@@ -1985,47 +1937,46 @@ API Gateway
 
    └── Search Service
 
-\`\`\`
+```
 
 The ALB is therefore the public entry point while the underlying EKS worker nodes remain in private subnets.
 
 The deployed application is accessible through the ALB's public DNS endpoint.
 
-**### Argo CD / GitOps**
-
-AWS Kubernetes deployment is managed through **\*\*Argo CD\*\***.
+### Argo CD / GitOps
+AWS Kubernetes deployment is managed through **Argo CD**.
 
 The cloud environment has a dedicated Argo CD \`ApplicationSet\`:
 
-\`\`\`text
+```text
 
 argocd/
 
 └── cloud-lab-applicationset.yaml
 
-\`\`\`
+```
 
 The ApplicationSet points Argo CD at the project's Helm chart:
 
-\`\`\`text
+```text
 
 helm/nodejs-microservices
 
-\`\`\`
+```
 
 and uses environment-specific values:
 
-\`\`\`text
+```text
 
 values.yaml
 
 values-dev.yaml
 
-\`\`\`
+```
 
 The cloud application is configured for automated synchronization:
 
-\`\`\`yaml
+```yaml
 
 syncPolicy:
 
@@ -2035,11 +1986,11 @@ syncPolicy:
 
     selfHeal: true
 
-\`\`\`
+```
 
 Therefore, the AWS deployment follows the GitOps flow:
 
-\`\`\`text
+```text
 
 Developer
 
@@ -2073,17 +2024,15 @@ Amazon EKS
 
 Application
 
-\`\`\`
+```
 
 With automated pruning and self-healing enabled, Argo CD continuously works to keep the Kubernetes cluster synchronized with the desired state stored in Git.
 
-**### Local → Kubernetes → AWS**
-
+### Local → Kubernetes → AWS
 The project deliberately supports multiple deployment environments.
 
-**#### Docker Compose**
-
-\`\`\`text
+#### Docker Compose
+```text
 
 Developer machine
 
@@ -2113,13 +2062,12 @@ Docker Compose
 
       └── Observability stack
 
-\`\`\`
+```
 
 Used for local development and reproducing the complete system.
 
-**#### Kubernetes / Kind**
-
-\`\`\`text
+#### Kubernetes / Kind
+```text
 
 Developer machine
 
@@ -2143,13 +2091,12 @@ Kind Kubernetes cluster
 
       └── Observability
 
-\`\`\`
+```
 
 Used to demonstrate Kubernetes orchestration locally before moving to the cloud.
 
-**#### AWS / EKS**
-
-\`\`\`text
+#### AWS / EKS
+```text
 
 Internet
 
@@ -2175,130 +2122,127 @@ EKS
 
    └── Argo CD GitOps
 
-\`\`\`
+```
 
 Used to demonstrate actual cloud deployment, AWS networking, managed Kubernetes, IAM integration, persistent storage, public ingress, and GitOps deployment.
 
-**### Reproducing the AWS Deployment**
-
-\> **\*\*Warning:\*\*** The AWS environment creates billable resources. Do not apply the Terraform configuration unless you understand the AWS resources being created and intend to incur the associated costs.
+### Reproducing the AWS Deployment
+> **Warning:** The AWS environment creates billable resources. Do not apply the Terraform configuration unless you understand the AWS resources being created and intend to incur the associated costs.
 
 From the Terraform environment:
 
-\`\`\`bash
+```bash
 
 cd terraform/environments/dev
 
-\`\`\`
+```
 
 Initialize Terraform:
 
-\`\`\`bash
+```bash
 
 terraform init
 
-\`\`\`
+```
 
 Review the infrastructure:
 
-\`\`\`bash
+```bash
 
 terraform plan
 
-\`\`\`
+```
 
 Apply the infrastructure:
 
-\`\`\`bash
+```bash
 
 terraform apply
 
-\`\`\`
+```
 
 After Terraform provisions the VPC and EKS infrastructure, configure \`kubectl\` for the cluster and deploy the Kubernetes/Argo CD components according to the cloud deployment manifests.
 
 Verify the EKS cluster:
 
-\`\`\`bash
+```bash
 
 kubectl get nodes
 
-\`\`\`
+```
 
 Verify the workloads:
 
-\`\`\`bash
+```bash
 
 kubectl get pods -A
 
-\`\`\`
+```
 
 Verify the ingress:
 
-\`\`\`bash
+```bash
 
 kubectl get ingress -A
 
-\`\`\`
+```
 
 The ALB provisioned by the AWS Load Balancer Controller provides the public endpoint for the application.
 
-**### What the AWS Deployment Demonstrates**
-
+### What the AWS Deployment Demonstrates
 The AWS deployment demonstrates practical experience with:
 
-\* AWS VPC design
+* AWS VPC design
 
-\* CIDR allocation
+* CIDR allocation
 
-\* Availability Zones
+* Availability Zones
 
-\* public/private subnet architecture
+* public/private subnet architecture
 
-\* Internet Gateway routing
+* Internet Gateway routing
 
-\* NAT Gateway and outbound private-subnet connectivity
+* NAT Gateway and outbound private-subnet connectivity
 
-\* EKS cluster provisioning
+* EKS cluster provisioning
 
-\* EC2 worker nodes
+* EC2 worker nodes
 
-\* Kubernetes networking
+* Kubernetes networking
 
-\* IAM roles and policies
+* IAM roles and policies
 
-\* EKS Pod Identity
+* EKS Pod Identity
 
-\* AWS Load Balancer Controller
+* AWS Load Balancer Controller
 
-\* public ALB ingress
+* public ALB ingress
 
-\* EBS persistent storage
+* EBS persistent storage
 
-\* EBS CSI
+* EBS CSI
 
-\* gp3 storage
+* gp3 storage
 
-\* Terraform modules
+* Terraform modules
 
-\* infrastructure as code
+* infrastructure as code
 
-\* Helm-based application deployment
+* Helm-based application deployment
 
-\* Argo CD GitOps
+* Argo CD GitOps
 
-\* automated synchronization
+* automated synchronization
 
-\* Kubernetes self-healing
+* Kubernetes self-healing
 
-\* cloud deployment of a distributed Node.js microservices system
+* cloud deployment of a distributed Node.js microservices system
 
-The result is not simply a local Kubernetes demo: the same application architecture has been taken from **\*\*Docker Compose → Kubernetes → AWS EKS\*\***, with the cloud environment exposed through a real public Application Load Balancer.
+The result is not simply a local Kubernetes demo: the same application architecture has been taken from **Docker Compose → Kubernetes → AWS EKS**, with the cloud environment exposed through a real public Application Load Balancer.
 
 </details>
 
-**## Deployment Model**
-
+## Deployment Model
 | Environment | Main purpose | Orchestration | Infrastructure |
 |---|---|---|---|
 | Docker Compose | Local development and E2E testing | Docker Compose | Local machine |
@@ -2307,7 +2251,7 @@ The result is not simply a local Kubernetes demo: the same application architect
 
 The progression is:
 
-\`\`\`text
+```text
 
 Local application
 
@@ -2343,13 +2287,12 @@ Cloud persistent storage
 
 Publicly accessible cloud deployment
 
-\`\`\`
+```
 
 ---
 
-**# Project Structure**
-
-\`\`\`text
+# Project Structure
+```text
 
 .
 
@@ -2429,7 +2372,7 @@ Publicly accessible cloud deployment
 
         └── deploy-kubernetes.yml
 
-\`\`\`
+```
 
 The repository is organized into application, Kubernetes, GitOps,
 observability, and cloud-infrastructure layers.
@@ -2445,89 +2388,87 @@ observability, and cloud-infrastructure layers.
 
 Each service follows its own service-specific implementation while sharing common architectural patterns such as:
 
-\* Express.
+* Express.
 
-\* MongoDB/Mongoose where required.
+* MongoDB/Mongoose where required.
 
-\* Redis where required.
+* Redis where required.
 
-\* Structured logging.
+* Structured logging.
 
-\* Correlation IDs.
+* Correlation IDs.
 
-\* OpenTelemetry.
+* OpenTelemetry.
 
-\* Prometheus metrics.
+* Prometheus metrics.
 
-\* Health/readiness endpoints.
+* Health/readiness endpoints.
 
-\* Graceful shutdown.
+* Graceful shutdown.
 
-\* Docker multi-stage builds.
+* Docker multi-stage builds.
 
-\---
+---
 
-**# Key Engineering Patterns**
+# Key Engineering Patterns
+| Pattern              | Purpose                                              |
 
-\| Pattern              | Purpose                                              |
+| -------------------- | ---------------------------------------------------- |
 
-\| -------------------- | ---------------------------------------------------- |
+| API Gateway          | Centralized external entry point and request routing |
 
-\| API Gateway          | Centralized external entry point and request routing |
+| Microservices        | Independent service ownership and deployment         |
 
-\| Microservices        | Independent service ownership and deployment         |
+| Transactional Outbox | Reliable database-to-event publication               |
 
-\| Transactional Outbox | Reliable database-to-event publication               |
+| RabbitMQ             | Asynchronous service communication                   |
 
-\| RabbitMQ             | Asynchronous service communication                   |
+| Idempotent Consumers | Safe duplicate event handling                        |
 
-\| Idempotent Consumers | Safe duplicate event handling                        |
+| Dead-Letter Queues   | Isolation of repeatedly failed messages              |
 
-\| Dead-Letter Queues   | Isolation of repeatedly failed messages              |
+| BullMQ               | Background job processing                            |
 
-\| BullMQ               | Background job processing                            |
+| Redis                | Caching, rate limiting, and job infrastructure       |
 
-\| Redis                | Caching, rate limiting, and job infrastructure       |
+| MongoDB Transactions | Atomic multi-document operations                     |
 
-\| MongoDB Transactions | Atomic multi-document operations                     |
+| OpenTelemetry        | Distributed tracing                                  |
 
-\| OpenTelemetry        | Distributed tracing                                  |
+| Prometheus           | Metrics collection                                   |
 
-\| Prometheus           | Metrics collection                                   |
+| Grafana              | Metrics visualization                                |
 
-\| Grafana              | Metrics visualization                                |
+| Loki                 | Centralized logging                                  |
 
-\| Loki                 | Centralized logging                                  |
+| Promtail             | Kubernetes log collection                            |
 
-\| Promtail             | Kubernetes log collection                            |
+| Jaeger               | Trace visualization                                  |
 
-\| Jaeger               | Trace visualization                                  |
+| Alertmanager         | Alert routing                                        |
 
-\| Alertmanager         | Alert routing                                        |
+| Discord              | Operational notifications                            |
 
-\| Discord              | Operational notifications                            |
+| Docker               | Containerization                                     |
 
-\| Docker               | Containerization                                     |
+| Multi-stage Builds   | Separate development and production images           |
 
-\| Multi-stage Builds   | Separate development and production images           |
+| Kubernetes           | Container orchestration                              |
 
-\| Kubernetes           | Container orchestration                              |
+| Helm                 | Kubernetes packaging/deployment                      |
 
-\| Helm                 | Kubernetes packaging/deployment                      |
+| Argo CD              | GitOps continuous delivery                           |
 
-\| Argo CD              | GitOps continuous delivery                           |
+| GitHub Actions       | CI/CD automation                                     |
 
-\| GitHub Actions       | CI/CD automation                                     |
+| E2E Testing          | Verification of complete asynchronous workflows      |
 
-\| E2E Testing          | Verification of complete asynchronous workflows      |
-
-**# Reliability Philosophy**
-
+# Reliability Philosophy
 The architecture deliberately separates synchronous user-facing operations from asynchronous work.
 
 For example, deleting a post does not require the HTTP request to synchronously complete every downstream operation:
 
-\`\`\`text
+```text
 
 DELETE /posts/\:id
 
@@ -2587,34 +2528,33 @@ MongoDB transaction
 
              Cloudinary
 
-\`\`\`
+```
 
 This allows downstream failures to be retried independently while preserving the original database operation.
 
-**# Development Principles**
-
+# Development Principles
 The project emphasizes:
 
-\* Failure isolation.
+* Failure isolation.
 
-\* Eventual consistency where appropriate.
+* Eventual consistency where appropriate.
 
-\* Idempotency.
+* Idempotency.
 
-\* Explicit dependency health.
+* Explicit dependency health.
 
-\* Observability across synchronous and asynchronous boundaries.
+* Observability across synchronous and asynchronous boundaries.
 
-\* Graceful resource management.
+* Graceful resource management.
 
-\* Automated testing.
+* Automated testing.
 
-\* Reproducible containerized environments.
+* Reproducible containerized environments.
 
-\* Infrastructure-as-code/declarative deployment.
+* Infrastructure-as-code/declarative deployment.
 
-\* GitOps-based Kubernetes delivery.
+* GitOps-based Kubernetes delivery.
 
-\* Separation between development and production container environments.
+* Separation between development and production container environments.
 
-\* Independent service ownership.
+* Independent service ownership.
