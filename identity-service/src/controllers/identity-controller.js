@@ -41,6 +41,14 @@ const resgiterUser = async (req, res) => {
     try {
       await registerLimiter.consume(req.ip);
     } catch (e) {
+      if (e instanceof RateLimiterRes) {
+        return res.status(429).json({
+          success: false,
+          message: "Too many register attempts",
+        });
+      }
+
+      // Non-rate-limit failure: deliberately fail open
       logger.error("Register rate limiter unavailable", e)
     }
 

@@ -2,6 +2,7 @@ const Media = require("../models/Media");
 const { uploadMediaToCloudinary } = require("../utils/cloudinary");
 const logger = require("../utils/logger");
 const {deleteMediaFromCloudinary} = require("../utils/cloudinary")
+const mediaCleanupQueue = require("../config/bullmq");
 
 const uploadMedia = async (req, res) => {
   logger.info("Starting media upload");
@@ -94,7 +95,7 @@ const getAllMedias = async (req, res) => {
 
         res.json({result})
   } catch (e) {
-    logger.error("Error fetching medias", error);
+    logger.error("Error fetching medias", e);
     res.status(500).json({
       success: false,
       message: "Error fetching medias",

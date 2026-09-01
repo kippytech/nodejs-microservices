@@ -54,7 +54,7 @@ async function recoverStaleProcessingEvents() {
 async function processOutbox() {
   isRunning = true;
 
-  while (true) {
+  while (isRunning) {
         try {
           //If Worker crashes, it prevents status stuck Forever at PROCESSING
           await recoverStaleProcessingEvents();

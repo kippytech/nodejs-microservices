@@ -261,7 +261,7 @@ const getAllPosts = async (req, res) => {
 
     res.json(result);
   } catch (e) {
-    logger.error("Error fetching posts", error);
+    logger.error("Error fetching posts", e);
     res.status(500).json({
       success: false,
       message: "Error fetching posts",
@@ -277,7 +277,7 @@ const getPost = async (req, res) => {
     //const cachedPost = await req.redisClient.get(cachekey);
     let cachedPost = null;
     try {
-      cachedPost = await req.redisClient.get(cacheKey);
+      cachedPost = await req.redisClient.get(cachekey);
     } catch (err) {
       logger.warn("Redis cache unavailable", {
         error: err.message,
@@ -315,7 +315,7 @@ const getPost = async (req, res) => {
 
     res.json(singlePostDetailsbyId);
   } catch (e) {
-    logger.error("Error fetching post", error);
+    logger.error("Error fetching post", e);
     res.status(500).json({
       success: false,
       message: "Error fetching post by ID",
