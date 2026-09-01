@@ -2391,55 +2391,30 @@ Each service follows its own service-specific implementation while sharing commo
 
 # Key Engineering Patterns
 | Pattern              | Purpose                                              |
-
 | -------------------- | ---------------------------------------------------- |
-
 | API Gateway          | Centralized external entry point and request routing |
-
 | Microservices        | Independent service ownership and deployment         |
-
 | Transactional Outbox | Reliable database-to-event publication               |
-
 | RabbitMQ             | Asynchronous service communication                   |
-
 | Idempotent Consumers | Safe duplicate event handling                        |
-
 | Dead-Letter Queues   | Isolation of repeatedly failed messages              |
-
 | BullMQ               | Background job processing                            |
-
 | Redis                | Caching, rate limiting, and job infrastructure       |
-
 | MongoDB Transactions | Atomic multi-document operations                     |
-
 | OpenTelemetry        | Distributed tracing                                  |
-
 | Prometheus           | Metrics collection                                   |
-
 | Grafana              | Metrics visualization                                |
-
 | Loki                 | Centralized logging                                  |
-
 | Promtail             | Kubernetes log collection                            |
-
 | Jaeger               | Trace visualization                                  |
-
 | Alertmanager         | Alert routing                                        |
-
 | Discord              | Operational notifications                            |
-
 | Docker               | Containerization                                     |
-
 | Multi-stage Builds   | Separate development and production images           |
-
 | Kubernetes           | Container orchestration                              |
-
 | Helm                 | Kubernetes packaging/deployment                      |
-
 | Argo CD              | GitOps continuous delivery                           |
-
 | GitHub Actions       | CI/CD automation                                     |
-
 | E2E Testing          | Verification of complete asynchronous workflows      |
 
 # Reliability Philosophy
