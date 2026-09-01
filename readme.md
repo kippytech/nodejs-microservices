@@ -57,91 +57,91 @@ Supporting infrastructure includes:
 ## High-Level Architecture
 ```text
 
-                              ┌─────────────────────┐
+                              ┌─────────────────────┐
 
-                              │       Client        │
+                              │       Client        │
 
-                              └──────────┬──────────┘
+                              └──────────┬──────────┘
 
-                                         │
+                                         │
 
-                                         ▼
+                                         ▼
 
-                              ┌─────────────────────┐
+                              ┌─────────────────────┐
 
-                              │    API Gateway      │
+                              │    API Gateway      │
 
-                              │                     │
+                              │                     │
 
-                              │ • Authentication    │
+                              │ • Authentication    │
 
-                              │ • Rate limiting     │
+                              │ • Rate limiting     │
 
-                              │ • Routing           │
+                              │ • Routing           │
 
-                              │ • Correlation IDs   │
+                              │ • Correlation IDs   │
 
-                              │ • Metrics            │
+                              │ • Metrics            │
 
-                              └───────┬─────────────┘
+                              └───────┬─────────────┘
 
-                                      │
+                                      │
 
-                 ┌────────────────────┼────────────────────┐
+                 ┌────────────────────┼────────────────────┐
 
-                 │                    │                    │
+                 │                    │                    │
 
-                 ▼                    ▼                    ▼
+                 ▼                    ▼                    ▼
 
-        ┌────────────────┐   ┌────────────────┐   ┌────────────────┐
+        ┌────────────────┐   ┌────────────────┐   ┌────────────────┐
 
-        │ Identity       │   │ Post           │   │ Media          │
+        │ Identity       │   │ Post           │   │ Media          │
 
-        │ Service        │   │ Service        │   │ Service        │
+        │ Service        │   │ Service        │   │ Service        │
 
-        └───────┬────────┘   └───────┬────────┘   └───────┬────────┘
+        └───────┬────────┘   └───────┬────────┘   └───────┬────────┘
 
-                │                    │                    │
+                │                    │                    │
 
-                ▼                    ▼                    ▼
+                ▼                    ▼                    ▼
 
-           MongoDB              MongoDB               MongoDB
+           MongoDB              MongoDB               MongoDB
 
-                                     │
+                                     │
 
-                                     │ Outbox
+                                     │ Outbox
 
-                                     ▼
+                                     ▼
 
-                              ┌──────────────┐
+                              ┌──────────────┐
 
-                              │  RabbitMQ    │
+                              │  RabbitMQ    │
 
-                              └──────┬───────┘
+                              └──────┬───────┘
 
-                                     │
+                                     │
 
-                         ┌───────────┴───────────┐
+                         ┌───────────┴───────────┐
 
-                         ▼                       ▼
+                         ▼                       ▼
 
-                ┌────────────────┐      ┌────────────────┐
+                ┌────────────────┐      ┌────────────────┐
 
-                │ Search Service │      │ Media Service  │
+                │ Search Service │      │ Media Service  │
 
-                └───────┬────────┘      └───────┬────────┘
+                └───────┬────────┘      └───────┬────────┘
 
-                        │                       │
+                        │                       │
 
-                        ▼                       ▼
+                        ▼                       ▼
 
-                    MongoDB                BullMQ / Redis
+                    MongoDB                BullMQ / Redis
 
-                                                │
+                                                │
 
-                                                ▼
+                                                ▼
 
-                                           Cloudinary
+                                           Cloudinary
 
 ```
 
@@ -206,7 +206,7 @@ It provides:
 
 * Graceful shutdown.
 
-Registration and login attempts are rate limited using Redis-backed \`rate-limiter-flexible\`.
+Registration and login attempts are rate limited using Redis-backed `rate-limiter-flexible`.
 
 ### Post Service
 The Post Service owns post creation, retrieval, deletion, caching, and event publication.
@@ -246,25 +246,25 @@ The upload flow is:
 
 Client
 
-  │
+  │
 
-  ▼
+  ▼
 
 API Gateway
 
-  │
+  │
 
-  ▼
+  ▼
 
 Media Service
 
-  │
+  │
 
-  ├──► Cloudinary
+  ├──► Cloudinary
 
-  │
+  │
 
-  └──► MongoDB
+  └──► MongoDB
 
 ```
 
@@ -274,16 +274,16 @@ Cloudinary operations include explicit timeouts and OpenTelemetry spans.
 
 If a Cloudinary upload succeeds but the subsequent database operation fails, the service performs a compensating Cloudinary deletion. If that cleanup also fails, the cleanup can be delegated to a BullMQ background job.
 
-When a post is deleted, the Media Service receives the \`post.deleted\` event and queues media deletion jobs through BullMQ.
+When a post is deleted, the Media Service receives the `post.deleted` event and queues media deletion jobs through BullMQ.
 
 ### Search Service
 The Search Service maintains a search-oriented representation of posts.
 
 It consumes:
 
-* \`post.created\`
+* `post.created`
 
-* \`post.deleted\`
+* `post.deleted`
 
 Events are processed asynchronously through RabbitMQ.
 
@@ -293,23 +293,23 @@ The service maintains a dedicated search collection with a MongoDB text index:
 
 Post Service
 
-     │
+     │
 
-     │ post.created
+     │ post.created
 
-     ▼
+     ▼
 
- RabbitMQ
+ RabbitMQ
 
-     │
+     │
 
-     ▼
+     ▼
 
 Search Service
 
-     │
+     │
 
-     ▼
+     ▼
 
 Search MongoDB
 
@@ -317,32 +317,32 @@ Search MongoDB
 
 Search queries use MongoDB's text search and text relevance scores.
 
-Event consumers use a \`ProcessedEvent\` collection with a unique \`eventId\` to provide idempotent event processing.
+Event consumers use a `ProcessedEvent` collection with a unique `eventId` to provide idempotent event processing.
 
 ## Event-Driven Architecture
 RabbitMQ uses a durable topic exchange for application events.
 
 ```text
 
-                         facebook_events
+                         facebook_events
 
-                              │
+                              │
 
-                    ┌─────────┴─────────┐
+                    ┌─────────┴─────────┐
 
-                    │                   │
+                    │                   │
 
-              post.created        post.deleted
+              post.created        post.deleted
 
-                    │                   │
+                    │                   │
 
-              ┌─────┴─────┐       ┌────┴─────┐
+              ┌─────┴─────┐       ┌────┴─────┐
 
-              ▼           ▼       ▼          ▼
+              ▼           ▼       ▼          ▼
 
-          Search       Media   Search      Media
+          Search       Media   Search      Media
 
-          Service      Service Service     Service
+          Service      Service Service     Service
 
 ```
 
@@ -390,13 +390,13 @@ Instead of:
 
 Database transaction
 
-       │
+       │
 
-       ├── save post
+       ├── save post
 
-       │
+       │
 
-       └── publish RabbitMQ event
+       └── publish RabbitMQ event
 
 ```
 
@@ -406,31 +406,31 @@ the service performs:
 
 MongoDB Transaction
 
-       │
+       │
 
-       ├── Save Post
+       ├── Save Post
 
-       │
+       │
 
-       └── Save Outbox Event
+       └── Save Outbox Event
 
-                 │
+                 │
 
-                 ▼
+                 ▼
 
-          Transaction commits
+          Transaction commits
 
-                 │
+                 │
 
-                 ▼
+                 ▼
 
-          Outbox Worker
+          Outbox Worker
 
-                 │
+                 │
 
-                 ▼
+                 ▼
 
-             RabbitMQ
+             RabbitMQ
 
 ```
 
@@ -438,23 +438,23 @@ This means the post and its corresponding event are persisted atomically.
 
 The outbox worker:
 
-1\. Finds a pending event.
+1. Finds a pending event.
 
-2\. Atomically changes it to \`PROCESSING\`.
+2. Atomically changes it to `PROCESSING`.
 
-3\. Publishes it to RabbitMQ.
+3. Publishes it to RabbitMQ.
 
-4\. Marks it \`PUBLISHED\` after successful publication.
+4. Marks it `PUBLISHED` after successful publication.
 
-5\. Records failures.
+5. Records failures.
 
-6\. Retries failed events.
+6. Retries failed events.
 
-7\. Permanently marks events as \`FAILED\` after the configured maximum number of attempts.
+7. Permanently marks events as `FAILED` after the configured maximum number of attempts.
 
-8\. Recovers stale \`PROCESSING\` events.
+8. Recovers stale `PROCESSING` events.
 
-9\. Periodically removes old published events.
+9. Periodically removes old published events.
 
 The outbox has indexes supporting pending-event processing, published-event cleanup, and stale-processing recovery.
 
@@ -463,31 +463,31 @@ An administrative API also allows failed events to be inspected and retried.
 ## Idempotent Event Processing
 Asynchronous messaging can result in duplicate delivery.
 
-Consumers therefore maintain a \`ProcessedEvent\` collection with a unique \`eventId\`.
+Consumers therefore maintain a `ProcessedEvent` collection with a unique `eventId`.
 
 ```text
 
 RabbitMQ Event
 
-      │
+      │
 
-      ▼
+      ▼
 
 Check eventId
 
-      │
+      │
 
- ┌────┴────┐
+ ┌────┴────┐
 
- │         │
+ │         │
 
-New      Duplicate
+New      Duplicate
 
- │         │
+ │         │
 
- ▼         ▼
+ ▼         ▼
 
-Process   Ignore
+Process   Ignore
 
 ```
 
@@ -506,37 +506,37 @@ The Media Service uses background jobs for media deletion and cleanup.
 
 Post deleted
 
-     │
+     │
 
-     ▼
+     ▼
 
 RabbitMQ
 
-     │
+     │
 
-     ▼
+     ▼
 
 Media Service
 
-     │
+     │
 
-     ▼
+     ▼
 
 BullMQ
 
-     │
+     │
 
-     ▼
+     ▼
 
 Media Delete Worker
 
-     │
+     │
 
-     ├──► Cloudinary
+     ├──► Cloudinary
 
-     │
+     │
 
-     └──► MongoDB
+     └──► MongoDB
 
 ```
 
@@ -567,9 +567,9 @@ Cached data includes:
 
 * Individual posts.
 
-Cache invalidation uses Redis \`UNLINK\` rather than blocking deletion.
+Cache invalidation uses Redis `UNLINK` rather than blocking deletion.
 
-For post-list invalidation, the implementation uses Redis incremental scanning rather than the blocking \`KEYS\` command.
+For post-list invalidation, the implementation uses Redis incremental scanning rather than the blocking `KEYS` command.
 
 Cached entries have explicit expiration periods.
 
@@ -582,27 +582,27 @@ Authentication is JWT-based.
 
 Client
 
-  │
+  │
 
-  │ Authorization: Bearer <JWT>
+  │ Authorization: Bearer <JWT>
 
-  ▼
+  ▼
 
 API Gateway
 
-  │
+  │
 
-  ├── verify JWT
+  ├── verify JWT
 
-  │
+  │
 
-  └── extract user identity
+  └── extract user identity
 
-          │
+          │
 
-          ▼
+          ▼
 
-      downstream service
+      downstream service
 
 ```
 
@@ -626,15 +626,15 @@ The Identity Service uses:
 Observability is built into the application and infrastructure rather than being added only at deployment time.
 
 ### Metrics
-Each service exposes Prometheus metrics through \`/metrics\`.
+Each service exposes Prometheus metrics through `/metrics`.
 
 All services collect Node.js default metrics as well as service-specific application metrics.
 
 Common HTTP metrics include:
 
-* \`http_request_duration_seconds\`
+* `http_request_duration_seconds`
 
-* \`http_requests_total\`
+* `http_requests_total`
 
 Service-specific metrics include metrics for operations such as:
 
@@ -646,7 +646,7 @@ Service-specific metrics include metrics for operations such as:
 
 * Cloudinary uploads.
 
-This means the metrics exposed by \`metrics.js\` are **service-specific** rather than one identical metrics module copied across every service.
+This means the metrics exposed by `metrics.js` are **service-specific** rather than one identical metrics module copied across every service.
 
 ### Distributed Tracing
 OpenTelemetry is used for distributed tracing.
@@ -657,45 +657,45 @@ The tracing path can span:
 
 HTTP Request
 
-     │
+     │
 
-     ▼
+     ▼
 
 API Gateway
 
-     │
+     │
 
-     ▼
+     ▼
 
 Post Service
 
-     │
+     │
 
-     ▼
+     ▼
 
 Outbox Worker
 
-     │
+     │
 
-     ▼
+     ▼
 
 RabbitMQ
 
-     │
+     │
 
-     ▼
+     ▼
 
 Search / Media Service
 
-     │
+     │
 
-     ▼
+     ▼
 
 BullMQ Worker
 
-     │
+     │
 
-     ▼
+     ▼
 
 Cloudinary
 
@@ -703,7 +703,7 @@ Cloudinary
 
 Trace context is propagated through asynchronous boundaries using OpenTelemetry propagation headers.
 
-The application also maintains correlation IDs using Node.js \`AsyncLocalStorage\`.
+The application also maintains correlation IDs using Node.js `AsyncLocalStorage`.
 
 Production logs include:
 
@@ -733,23 +733,23 @@ The logging pipeline uses:
 
 Kubernetes Pods
 
-      │
+      │
 
-      ▼
+      ▼
 
-   Promtail
+   Promtail
 
-      │
+      │
 
-      ▼
+      ▼
 
-     Loki
+     Loki
 
-      │
+      │
 
-      ▼
+      ▼
 
-   Grafana
+   Grafana
 
 ```
 
@@ -758,31 +758,31 @@ The current Promtail configuration uses Kubernetes pod discovery and CRI log par
 An earlier Docker discovery configuration is retained as historical configuration for the pre-Kubernetes environment.
 
 ### Metrics and Alerting
-Prometheus scrapes each service's \`/metrics\` endpoint.
+Prometheus scrapes each service's `/metrics` endpoint.
 
 ```text
 
 Services
 
-   │
+   │
 
-   ▼
+   ▼
 
 Prometheus
 
-   │
+   │
 
-   ├──► Grafana
+   ├──► Grafana
 
-   │
+   │
 
-   └──► Alertmanager
+   └──► Alertmanager
 
-             │
+             │
 
-             ▼
+             ▼
 
-          Discord
+          Discord
 
 ```
 
@@ -809,19 +809,19 @@ OpenTelemetry Collector receives OTLP traces and exports them to Jaeger.
 
 Node.js Services
 
-      │
+      │
 
-      │ OTLP
+      │ OTLP
 
-      ▼
+      ▼
 
 OpenTelemetry Collector
 
-      │
+      │
 
-      ▼
+      ▼
 
-    Jaeger
+    Jaeger
 
 ```
 
@@ -832,7 +832,7 @@ Health answers whether the process itself is alive.
 
 Readiness additionally considers service dependencies.
 
-For services with RabbitMQ/MongoDB dependencies, readiness checks dependency state before returning \`READY\`.
+For services with RabbitMQ/MongoDB dependencies, readiness checks dependency state before returning `READY`.
 
 This allows an orchestrator to distinguish:
 
@@ -840,14 +840,14 @@ This allows an orchestrator to distinguish:
 
 Process is alive
 
-        ≠
+        ≠
 
 Process is ready to receive traffic
 
 ```
 
 ## Graceful Shutdown
-Services handle \`SIGINT\` and \`SIGTERM\`.
+Services handle `SIGINT` and `SIGTERM`.
 
 The shutdown sequence closes active resources before the process exits.
 
@@ -979,41 +979,41 @@ The Kubernetes deployment path includes:
 
 GitHub
 
-  │
+  │
 
-  ▼
+  ▼
 
 GitHub Actions
 
-  │
+  │
 
-  ├── Build images
+  ├── Build images
 
-  │
+  │
 
-  ├── Push images to GHCR
+  ├── Push images to GHCR
 
-  │
+  │
 
-  └── Update Helm values
+  └── Update Helm values
 
-             │
+             │
 
-             ▼
+             ▼
 
-          Git commit
+          Git commit
 
-             │
+             │
 
-             ▼
+             ▼
 
-          Argo CD
+          Argo CD
 
-             │
+             │
 
-             ▼
+             ▼
 
-        Kubernetes
+        Kubernetes
 
 ```
 
@@ -1021,48 +1021,48 @@ The repository therefore separates application image building from Kubernetes de
 
 ## CI/CD
 ### Continuous Integration
-GitHub Actions runs CI on pushes and pull requests targeting \`main\` and \`develop\`.
+GitHub Actions runs CI on pushes and pull requests targeting `main` and `develop`.
 
 The CI workflow:
 
-1\. Checks out the repository.
+1. Checks out the repository.
 
-2\. Installs Node.js 24.
+2. Installs Node.js 24.
 
-3\. Installs dependencies for all services.
+3. Installs dependencies for all services.
 
-4\. Installs E2E test dependencies.
+4. Installs E2E test dependencies.
 
-5\. Builds and starts the Docker Compose environment.
+5. Builds and starts the Docker Compose environment.
 
-6\. Waits for the API Gateway.
+6. Waits for the API Gateway.
 
-7\. Verifies containers.
+7. Verifies containers.
 
-8\. Creates an E2E test user.
+8. Creates an E2E test user.
 
-9\. Runs Jest E2E tests.
+9. Runs Jest E2E tests.
 
-10\. Collects Docker logs on failure.
+10. Collects Docker logs on failure.
 
-11\. Uploads logs as GitHub Actions artifacts.
+11. Uploads logs as GitHub Actions artifacts.
 
-12\. Shuts down the environment.
+12. Shuts down the environment.
 
 ### Kubernetes GitOps Deployment
-After successful CI on \`main\`, the Kubernetes deployment workflow:
+After successful CI on `main`, the Kubernetes deployment workflow:
 
-1\. Identifies whether application code changed.
+1. Identifies whether application code changed.
 
-2\. Builds production images for the affected application services.
+2. Builds production images for the affected application services.
 
-3\. Pushes images to GHCR.
+3. Pushes images to GHCR.
 
-4\. Updates the development Helm image tag.
+4. Updates the development Helm image tag.
 
-5\. Commits the Helm change.
+5. Commits the Helm change.
 
-6\. Pushes the change back to Git.
+6. Pushes the change back to Git.
 
 Argo CD can then reconcile the desired Kubernetes state from Git.
 
@@ -1078,83 +1078,83 @@ The main flow is:
 
 Register
 
-   │
+   │
 
-   ▼
+   ▼
 
 Login
 
-   │
+   │
 
-   ▼
+   ▼
 
 Upload Media
 
-   │
+   │
 
-   ▼
+   ▼
 
 Create Post
 
-   │
+   │
 
-   ├──────────────► Outbox
+   ├──────────────► Outbox
 
-   │                    │
+   │                    │
 
-   │                    ▼
+   │                    ▼
 
-   │                 RabbitMQ
+   │                 RabbitMQ
 
-   │                    │
+   │                    │
 
-   │                    ▼
+   │                    ▼
 
-   │              Search Service
+   │              Search Service
 
-   │
+   │
 
-   ▼
+   ▼
 
 Verify Search Index
 
-   │
+   │
 
-   ▼
+   ▼
 
 Delete Post
 
-   │
+   │
 
-   ├──────────────► Outbox
+   ├──────────────► Outbox
 
-   │                    │
+   │                    │
 
-   │                    ▼
+   │                    ▼
 
-   │                 RabbitMQ
+   │                 RabbitMQ
 
-   │                    │
+   │                    │
 
-   │                    ▼
+   │                    ▼
 
-   │              Media Service
+   │              Media Service
 
-   │                    │
+   │                    │
 
-   │                    ▼
+   │                    ▼
 
-   │                  BullMQ
+   │                  BullMQ
 
-   │                    │
+   │                    │
 
-   │                    ▼
+   │                    ▼
 
-   │                Cloudinary
+   │                Cloudinary
 
-   │
+   │
 
-   ▼
+   ▼
 
 Verify Media Cleanup
 
@@ -1185,10 +1185,6 @@ more infrastructure and operational capabilities.
 
 <summary><strong>1. Docker Compose — local development / complete local stack</strong></summary>
 
-<details>
-
-<summary><strong>1. Docker Compose — local development / complete local stack</strong></summary>
-
 ## Prerequisites
 Install:
 
@@ -1202,7 +1198,7 @@ Clone the repository:
 
 ```bash
 
-git clone https\://github.com/kippytech/nodejs-microservices
+git clone https://github.com/kippytech/nodejs-microservices
 
 cd nodejs-microservices
 
@@ -1226,7 +1222,7 @@ cd tests && npm ci && cd ..
 
 ```
 
-Configure the required environment variables in the service \`.env\` files.
+Configure the required environment variables in the service `.env` files.
 
 The Compose environment provides the infrastructure services:
 
@@ -1254,13 +1250,10 @@ Start the complete development environment:
 
 ```bash
 
-docker compose \\
-
-  -f docker-compose.yml \\
-
-  -f docker-compose.dev.yml \\
-
-  up -d --build
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  up -d --build
 
 ```
 
@@ -1268,13 +1261,10 @@ Check the running services:
 
 ```bash
 
-docker compose \\
-
-  -f docker-compose.yml \\
-
-  -f docker-compose.dev.yml \\
-
-  ps
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  ps
 
 ```
 
@@ -1282,7 +1272,7 @@ The API Gateway is available on:
 
 ```text
 
-http\://localhost:3000
+http://localhost:3000
 
 ```
 
@@ -1290,7 +1280,7 @@ Health:
 
 ```text
 
-http\://localhost:3000/api/health
+http://localhost:3000/api/health
 
 ```
 
@@ -1298,13 +1288,13 @@ The local observability interfaces include:
 
 ```text
 
-Prometheus   → http\://localhost:9090
+Prometheus   → http://localhost:9090
 
-Grafana      → http\://localhost:3005
+Grafana      → http://localhost:3005
 
-Alertmanager → http\://localhost:9093
+Alertmanager → http://localhost:9093
 
-Jaeger       → http\://localhost:16686
+Jaeger       → http://localhost:16686
 
 ```
 
@@ -1322,20 +1312,14 @@ Stop the environment:
 
 ```bash
 
-docker compose \\
-
-  -f docker-compose.yml \\
-
-  -f docker-compose.dev.yml \\
-
-  down -v
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  down -v
 
 ```
 
 </details>
-
-\
-
 <details>
 
 <summary><strong>2. Kubernetes + Helm — Kubernetes deployment / GitOps environment</strong></summary>
@@ -1347,7 +1331,7 @@ Install/configure:
 
 * Kubernetes
 
-* \`kubectl\`
+* `kubectl`
 
 * Helm
 
@@ -1374,13 +1358,10 @@ Production images are built from the production stage of each service's multi-st
 
 ```bash
 
-docker build \\
-
-  --target production \\
-
-  -t ghcr.io/<namespace>/api-gateway:<tag> \\
-
-  ./api-gateway
+docker build \
+  --target production \
+  -t ghcr.io/<namespace>/api-gateway:<tag> \
+  ./api-gateway
 
 ```
 
@@ -1417,9 +1398,8 @@ Render the manifests:
 
 ```bash
 
-helm template nodejs-microservices \\
-
-  helm/nodejs-microservices
+helm template nodejs-microservices \
+  helm/nodejs-microservices
 
 ```
 
@@ -1427,9 +1407,8 @@ Install or upgrade the release:
 
 ```bash
 
-helm upgrade --install nodejs-microservices \\
-
-  helm/nodejs-microservices
+helm upgrade --install nodejs-microservices \
+  helm/nodejs-microservices
 
 ```
 
@@ -1442,45 +1421,45 @@ The preferred project deployment flow is GitOps:
 
 Application change
 
-       │
+       │
 
-       ▼
+       ▼
 
 GitHub Actions
 
-       │
+       │
 
-       ├── CI
+       ├── CI
 
-       │
+       │
 
-       ├── Build production images
+       ├── Build production images
 
-       │
+       │
 
-       ├── Push images to GHCR
+       ├── Push images to GHCR
 
-       │
+       │
 
-       └── Update Helm image tag
+       └── Update Helm image tag
 
-                    │
+                    │
 
-                    ▼
+                    ▼
 
-                  Git
+                  Git
 
-                    │
+                    │
 
-                    ▼
+                    ▼
 
-                 Argo CD
+                 Argo CD
 
-                    │
+                    │
 
-                    ▼
+                    ▼
 
-               Kubernetes
+               Kubernetes
 
 ```
 
@@ -1548,88 +1527,88 @@ The AWS environment takes the Kubernetes deployment used locally with Kind and m
 ### AWS Architecture
 ```text
 
-                         Internet
+                         Internet
 
-                            │
+                            │
 
-                            ▼
+                            ▼
 
-                 ┌─────────────────────┐
+                 ┌─────────────────────┐
 
-                 │   AWS ALB            │
+                 │   AWS ALB            │
 
-                 │  Public Subnets      │
+                 │  Public Subnets      │
 
-                 └──────────┬──────────┘
+                 └──────────┬──────────┘
 
-                            │
+                            │
 
-                            ▼
+                            ▼
 
-                 ┌─────────────────────┐
+                 ┌─────────────────────┐
 
-                 │       EKS           │
+                 │       EKS           │
 
-                 │  Kubernetes API     │
+                 │  Kubernetes API     │
 
-                 └──────────┬──────────┘
+                 └──────────┬──────────┘
 
-                            │
+                            │
 
-             ┌──────────────┴──────────────┐
+             ┌──────────────┴──────────────┐
 
-             │                             │
+             │                             │
 
-             ▼                             ▼
+             ▼                             ▼
 
-     ┌────────────────┐            ┌────────────────┐
+     ┌────────────────┐            ┌────────────────┐
 
-     │ Private        │            │ Private        │
+     │ Private        │            │ Private        │
 
-     │ Subnet 1       │            │ Subnet 2       │
+     │ Subnet 1       │            │ Subnet 2       │
 
-     │                │            │                │
+     │                │            │                │
 
-     │ EC2 / EKS      │            │ EC2 / EKS      │
+     │ EC2 / EKS      │            │ EC2 / EKS      │
 
-     │ worker nodes   │            │ worker nodes   │
+     │ worker nodes   │            │ worker nodes   │
 
-     └────────────────┘            └────────────────┘
+     └────────────────┘            └────────────────┘
 
-             │                             │
+             │                             │
 
-             └──────────────┬──────────────┘
+             └──────────────┬──────────────┘
 
-                            │
+                            │
 
-                            ▼
+                            ▼
 
-                    ┌──────────────┐
+                    ┌──────────────┐
 
-                    │ NAT Gateway  │
+                    │ NAT Gateway  │
 
-                    │ Public subnet │
+                    │ Public subnet │
 
-                    └──────┬───────┘
+                    └──────┬───────┘
 
-                           │
+                           │
 
-                           ▼
+                           ▼
 
-                    ┌──────────────┐
+                    ┌──────────────┐
 
-                    │ Internet     │
+                    │ Internet     │
 
-                    │ Gateway      │
+                    │ Gateway      │
 
-                    └──────────────┘
+                    └──────────────┘
 
 ```
 
 ### AWS Components
 The Terraform configuration provisions and configures:
 
-* **VPC** with a \`10.0.0.0/16\` CIDR
+* **VPC** with a `10.0.0.0/16` CIDR
 
 * **Two Availability Zones**
 
@@ -1674,33 +1653,33 @@ VPC: 10.0.0.0/16
 
 ├── Public Subnet
 
-│   └── eu-north-1a
+│   └── eu-north-1a
 
-│       └── ALB / NAT Gateway
+│       └── ALB / NAT Gateway
 
 │
 
 ├── Public Subnet
 
-│   └── eu-north-1b
+│   └── eu-north-1b
 
-│       └── ALB
+│       └── ALB
 
 │
 
 ├── Private Subnet
 
-│   └── eu-north-1a
+│   └── eu-north-1a
 
-│       └── EKS worker nodes
+│       └── EKS worker nodes
 
 │
 
 └── Private Subnet
 
-    └── eu-north-1b
+    └── eu-north-1b
 
-        └── EKS worker nodes
+        └── EKS worker nodes
 
 ```
 
@@ -1721,37 +1700,37 @@ terraform/
 
 ├── environments/
 
-│   └── dev/
+│   └── dev/
 
-│       └── main.tf
+│       └── main.tf
 
 │
 
 └── modules/
 
-    ├── network/
+    ├── network/
 
-    │   ├── main.tf
+    │   ├── main.tf
 
-    │   ├── outputs.tf
+    │   ├── outputs.tf
 
-    │   └── variables.tf
+    │   └── variables.tf
 
-    │
+    │
 
-    └── eks/
+    └── eks/
 
-        ├── main.tf
+        ├── main.tf
 
-        ├── outputs.tf
+        ├── outputs.tf
 
-        ├── variables.tf
+        ├── variables.tf
 
-        ├── ebs-csi.tf
+        ├── ebs-csi.tf
 
-        ├── load-balancer-controller.tf
+        ├── load-balancer-controller.tf
 
-        └── aws-load-balancer-controller-iam-policy.json
+        └── aws-load-balancer-controller-iam-policy.json
 
 ```
 
@@ -1761,37 +1740,37 @@ The development environment composes the network and EKS modules:
 
 module "network" {
 
-  source = "../../modules/network"
+  source = "../../modules/network"
 
-  environment = "dev"
+  environment = "dev"
 
-  vpc_cidr = "10.0.0.0/16"
+  vpc_cidr = "10.0.0.0/16"
 
-  availability_zones = [
+  availability_zones = [
 
-    "eu-north-1a",
+    "eu-north-1a",
 
-    "eu-north-1b",
+    "eu-north-1b",
 
-  ]
+  ]
 
-  public_subnet_cidrs = [
+  public_subnet_cidrs = [
 
-    "10.0.1.0/24",
+    "10.0.1.0/24",
 
-    "10.0.2.0/24",
+    "10.0.2.0/24",
 
-  ]
+  ]
 
-  private_subnet_cidrs = [
+  private_subnet_cidrs = [
 
-    "10.0.101.0/24",
+    "10.0.101.0/24",
 
-    "10.0.102.0/24",
+    "10.0.102.0/24",
 
-  ]
+  ]
 
-  enable_nat_gateway = true
+  enable_nat_gateway = true
 
 }
 
@@ -1803,27 +1782,27 @@ The EKS cluster is then deployed into the private subnets:
 
 module "eks" {
 
-  source = "../../modules/eks"
+  source = "../../modules/eks"
 
-  environment = "dev"
+  environment = "dev"
 
-  cluster_name       = "nodejs-microservices-dev"
+  cluster_name       = "nodejs-microservices-dev"
 
-  kubernetes_version = "1.35"
+  kubernetes_version = "1.35"
 
-  private_subnet_ids = module.network.private_subnet_ids
+  private_subnet_ids = module.network.private_subnet_ids
 
-  node_instance_types = [
+  node_instance_types = [
 
-    "t3.small"
+    "t3.small"
 
-  ]
+  ]
 
-  node_min_size     = 1
+  node_min_size     = 1
 
-  node_max_size     = 3
+  node_max_size     = 3
 
-  node_desired_size = 3
+  node_desired_size = 3
 
 }
 
@@ -1895,7 +1874,7 @@ This provides a transition from ephemeral container storage in the local environ
 ### Public Application Load Balancer
 The Kubernetes application is publicly accessible through an **AWS Application Load Balancer**.
 
-The AWS Load Balancer Controller integrates Kubernetes \`Ingress\` resources with AWS and provisions/manages the ALB.
+The AWS Load Balancer Controller integrates Kubernetes `Ingress` resources with AWS and provisions/manages the ALB.
 
 The flow is:
 
@@ -1903,39 +1882,39 @@ The flow is:
 
 Internet
 
-   │
+   │
 
-   ▼
+   ▼
 
 Public ALB
 
-   │
+   │
 
-   ▼
+   ▼
 
 Kubernetes Ingress
 
-   │
+   │
 
-   ▼
+   ▼
 
 Kubernetes Service
 
-   │
+   │
 
-   ▼
+   ▼
 
 API Gateway
 
-   │
+   │
 
-   ├── Identity Service
+   ├── Identity Service
 
-   ├── Post Service
+   ├── Post Service
 
-   ├── Media Service
+   ├── Media Service
 
-   └── Search Service
+   └── Search Service
 
 ```
 
@@ -1946,7 +1925,7 @@ The deployed application is accessible through the ALB's public DNS endpoint.
 ### Argo CD / GitOps
 AWS Kubernetes deployment is managed through **Argo CD**.
 
-The cloud environment has a dedicated Argo CD \`ApplicationSet\`:
+The cloud environment has a dedicated Argo CD `ApplicationSet`:
 
 ```text
 
@@ -1980,11 +1959,11 @@ The cloud application is configured for automated synchronization:
 
 syncPolicy:
 
-  automated:
+  automated:
 
-    prune: true
+    prune: true
 
-    selfHeal: true
+    selfHeal: true
 
 ```
 
@@ -1994,33 +1973,33 @@ Therefore, the AWS deployment follows the GitOps flow:
 
 Developer
 
-    │
+    │
 
-    ▼
+    ▼
 
 GitHub
 
-    │
+    │
 
-    ▼
+    ▼
 
 Argo CD
 
-    │
+    │
 
-    ▼
+    ▼
 
 Helm
 
-    │
+    │
 
-    ▼
+    ▼
 
 Amazon EKS
 
-    │
+    │
 
-    ▼
+    ▼
 
 Application
 
@@ -2036,31 +2015,31 @@ The project deliberately supports multiple deployment environments.
 
 Developer machine
 
-      │
+      │
 
-      ▼
+      ▼
 
 Docker Compose
 
-      │
+      │
 
-      ├── API Gateway
+      ├── API Gateway
 
-      ├── Identity
+      ├── Identity
 
-      ├── Post
+      ├── Post
 
-      ├── Media
+      ├── Media
 
-      ├── Search
+      ├── Search
 
-      ├── MongoDB
+      ├── MongoDB
 
-      ├── Redis
+      ├── Redis
 
-      ├── RabbitMQ
+      ├── RabbitMQ
 
-      └── Observability stack
+      └── Observability stack
 
 ```
 
@@ -2071,25 +2050,25 @@ Used for local development and reproducing the complete system.
 
 Developer machine
 
-      │
+      │
 
-      ▼
+      ▼
 
 Kind Kubernetes cluster
 
-      │
+      │
 
-      ├── Deployments
+      ├── Deployments
 
-      ├── Services
+      ├── Services
 
-      ├── ConfigMaps / Secrets
+      ├── ConfigMaps / Secrets
 
-      ├── Persistent storage
+      ├── Persistent storage
 
-      ├── Probes
+      ├── Probes
 
-      └── Observability
+      └── Observability
 
 ```
 
@@ -2100,27 +2079,27 @@ Used to demonstrate Kubernetes orchestration locally before moving to the cloud.
 
 Internet
 
-   │
+   │
 
-   ▼
+   ▼
 
 AWS ALB
 
-   │
+   │
 
-   ▼
+   ▼
 
 EKS
 
-   │
+   │
 
-   ├── Private EC2 worker nodes
+   ├── Private EC2 worker nodes
 
-   ├── Kubernetes workloads
+   ├── Kubernetes workloads
 
-   ├── EBS persistent storage
+   ├── EBS persistent storage
 
-   └── Argo CD GitOps
+   └── Argo CD GitOps
 
 ```
 
@@ -2161,7 +2140,7 @@ terraform apply
 
 ```
 
-After Terraform provisions the VPC and EKS infrastructure, configure \`kubectl\` for the cluster and deploy the Kubernetes/Argo CD components according to the cloud deployment manifests.
+After Terraform provisions the VPC and EKS infrastructure, configure `kubectl` for the cluster and deploy the Kubernetes/Argo CD components according to the cloud deployment manifests.
 
 Verify the EKS cluster:
 
@@ -2411,57 +2390,57 @@ Each service follows its own service-specific implementation while sharing commo
 ---
 
 # Key Engineering Patterns
-| Pattern              | Purpose                                              |
+| Pattern              | Purpose                                              |
 
 | -------------------- | ---------------------------------------------------- |
 
-| API Gateway          | Centralized external entry point and request routing |
+| API Gateway          | Centralized external entry point and request routing |
 
-| Microservices        | Independent service ownership and deployment         |
+| Microservices        | Independent service ownership and deployment         |
 
-| Transactional Outbox | Reliable database-to-event publication               |
+| Transactional Outbox | Reliable database-to-event publication               |
 
-| RabbitMQ             | Asynchronous service communication                   |
+| RabbitMQ             | Asynchronous service communication                   |
 
-| Idempotent Consumers | Safe duplicate event handling                        |
+| Idempotent Consumers | Safe duplicate event handling                        |
 
-| Dead-Letter Queues   | Isolation of repeatedly failed messages              |
+| Dead-Letter Queues   | Isolation of repeatedly failed messages              |
 
-| BullMQ               | Background job processing                            |
+| BullMQ               | Background job processing                            |
 
-| Redis                | Caching, rate limiting, and job infrastructure       |
+| Redis                | Caching, rate limiting, and job infrastructure       |
 
-| MongoDB Transactions | Atomic multi-document operations                     |
+| MongoDB Transactions | Atomic multi-document operations                     |
 
-| OpenTelemetry        | Distributed tracing                                  |
+| OpenTelemetry        | Distributed tracing                                  |
 
-| Prometheus           | Metrics collection                                   |
+| Prometheus           | Metrics collection                                   |
 
-| Grafana              | Metrics visualization                                |
+| Grafana              | Metrics visualization                                |
 
-| Loki                 | Centralized logging                                  |
+| Loki                 | Centralized logging                                  |
 
-| Promtail             | Kubernetes log collection                            |
+| Promtail             | Kubernetes log collection                            |
 
-| Jaeger               | Trace visualization                                  |
+| Jaeger               | Trace visualization                                  |
 
-| Alertmanager         | Alert routing                                        |
+| Alertmanager         | Alert routing                                        |
 
-| Discord              | Operational notifications                            |
+| Discord              | Operational notifications                            |
 
-| Docker               | Containerization                                     |
+| Docker               | Containerization                                     |
 
-| Multi-stage Builds   | Separate development and production images           |
+| Multi-stage Builds   | Separate development and production images           |
 
-| Kubernetes           | Container orchestration                              |
+| Kubernetes           | Container orchestration                              |
 
-| Helm                 | Kubernetes packaging/deployment                      |
+| Helm                 | Kubernetes packaging/deployment                      |
 
-| Argo CD              | GitOps continuous delivery                           |
+| Argo CD              | GitOps continuous delivery                           |
 
-| GitHub Actions       | CI/CD automation                                     |
+| GitHub Actions       | CI/CD automation                                     |
 
-| E2E Testing          | Verification of complete asynchronous workflows      |
+| E2E Testing          | Verification of complete asynchronous workflows      |
 
 # Reliability Philosophy
 The architecture deliberately separates synchronous user-facing operations from asynchronous work.
@@ -2470,63 +2449,63 @@ For example, deleting a post does not require the HTTP request to synchronously 
 
 ```text
 
-DELETE /posts/\:id
+DELETE /posts/:id
 
-       │
+       │
 
-       ▼
+       ▼
 
 MongoDB transaction
 
-       │
+       │
 
-       ├── Delete post
+       ├── Delete post
 
-       └── Store post.deleted event
+       └── Store post.deleted event
 
-       │
+       │
 
-       ▼
+       ▼
 
-    Commit
+    Commit
 
-       │
+       │
 
-       ▼
+       ▼
 
- HTTP response
+ HTTP response
 
-       │
+       │
 
-       ▼
+       ▼
 
- Outbox worker
+ Outbox worker
 
-       │
+       │
 
-       ▼
+       ▼
 
- RabbitMQ
+ RabbitMQ
 
-       │
+       │
 
-       ├── Search Service
+       ├── Search Service
 
-       │
+       │
 
-       └── Media Service
+       └── Media Service
 
-                 │
+                 │
 
-                 ▼
+                 ▼
 
-              BullMQ
+              BullMQ
 
-                 │
+                 │
 
-                 ▼
+                 ▼
 
-             Cloudinary
+             Cloudinary
 
 ```
 
