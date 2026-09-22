@@ -14,7 +14,7 @@ permissions:
 env:
   #IMAGE_TAG: 2026
   IMAGE_TAG: ${{ github.sha }}
-  RELEASE_TAG: v0.1.0
+  #RELEASE_TAG: v0.1.0
 
 jobs:
   deploy:
@@ -46,11 +46,11 @@ jobs:
             -t ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }} \
             ./api-gateway
 
-      - name: Tag API Gateway Release
-        run: |
-          docker tag \
-            ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }} \
-            ghcr.io/kippytech/api-gateway:${{ env.RELEASE_TAG }}
+      # - name: Tag API Gateway Release
+      #   run: |
+      #     docker tag \
+      #       ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }} \
+      #       ghcr.io/kippytech/api-gateway:${{ env.RELEASE_TAG }}
 
       - name: Build Identity Service image
         run: |
@@ -59,11 +59,11 @@ jobs:
             -t ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }} \
             ./identity-service
 
-      - name: Tag Identity Service Release
-        run: |
-          docker tag \
-            ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }} \
-            ghcr.io/kippytech/identity-service:${{ env.RELEASE_TAG }}
+      # - name: Tag Identity Service Release
+      #   run: |
+      #     docker tag \
+      #       ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }} \
+      #       ghcr.io/kippytech/identity-service:${{ env.RELEASE_TAG }}
 
       - name: Build Post Service image
         run: |
@@ -72,11 +72,11 @@ jobs:
             -t ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }} \
             ./post-service
 
-      - name: Tag Post Service Release
-        run: |
-          docker tag \
-            ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }} \
-            ghcr.io/kippytech/post-service:${{ env.RELEASE_TAG }}
+      # - name: Tag Post Service Release
+      #   run: |
+      #     docker tag \
+      #       ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }} \
+      #       ghcr.io/kippytech/post-service:${{ env.RELEASE_TAG }}
 
       - name: Build Media Service image
         run: |
@@ -85,11 +85,11 @@ jobs:
             -t ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }} \
             ./media-service
 
-      - name: Tag Media Service Release
-        run: |
-          docker tag \
-            ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }} \
-            ghcr.io/kippytech/media-service:${{ env.RELEASE_TAG }}
+      # - name: Tag Media Service Release
+      #   run: |
+      #     docker tag \
+      #       ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }} \
+      #       ghcr.io/kippytech/media-service:${{ env.RELEASE_TAG }}
 
       - name: Build Search Service image
         run: |
@@ -98,46 +98,46 @@ jobs:
             -t ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }} \
             ./search-service
 
-      - name: Tag Search Service Release
-        run: |
-          docker tag \
-            ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }} \
-            ghcr.io/kippytech/search-service:${{ env.RELEASE_TAG }}
+      # - name: Tag Search Service Release
+      #   run: |
+      #     docker tag \
+      #       ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }} \
+      #       ghcr.io/kippytech/search-service:${{ env.RELEASE_TAG }}
 
       - name: Push API Gateway image
         run: docker push ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }}
 
-      - name: Push Release Image
-        run: |
-          docker push ghcr.io/kippytech/api-gateway:${{ env.RELEASE_TAG }}
+      # - name: Push Release Image
+      #   run: |
+      #     docker push ghcr.io/kippytech/api-gateway:${{ env.RELEASE_TAG }}
 
       - name: Push Identity Service image
         run: docker push ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }}
 
-      - name: Push Release Image
-        run: |
-          docker push ghcr.io/kippytech/identity-service:${{ env.RELEASE_TAG }}
+      # - name: Push Release Image
+      #   run: |
+      #     docker push ghcr.io/kippytech/identity-service:${{ env.RELEASE_TAG }}
 
       - name: Push Post Service image
         run: docker push ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }}
 
-      - name: Push Release Image
-        run: |
-          docker push ghcr.io/kippytech/post-service:${{ env.RELEASE_TAG }}
+      # - name: Push Release Image
+      #   run: |
+      #     docker push ghcr.io/kippytech/post-service:${{ env.RELEASE_TAG }}
 
       - name: Push Media Service image
         run: docker push ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }}
 
-      - name: Push Release Image
-        run: |
-          docker push ghcr.io/kippytech/media-service:${{ env.RELEASE_TAG }}
+      # - name: Push Release Image
+      #   run: |
+      #     docker push ghcr.io/kippytech/media-service:${{ env.RELEASE_TAG }}
 
       - name: Push Search Service image
         run: docker push ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }}
 
-      - name: Push Release Image
-        run: |
-          docker push ghcr.io/kippytech/search-service:${{ env.RELEASE_TAG }}
+      # - name: Push Release Image
+      #   run: |
+      #     docker push ghcr.io/kippytech/search-service:${{ env.RELEASE_TAG }}
 
       - name: Configure SSH
         run: |
@@ -154,11 +154,12 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} IMAGE_TAG=${{ github.sha }} << 'EOF'
             cd /path/to/nodejs-microservices-2025
 
-            if grep -q "^IMAGE_TAG=" .env; then
-              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/" .env
-            else
-              echo "IMAGE_TAG=$IMAGE_TAG" >> .env
-            fi
+            PREVIOUS_TAG=$(grep '^IMAGE_TAG=' .env | cut -d= -f2-)
+
+            echo "Previous version: $PREVIOUS_TAG"
+            echo "New version: $IMAGE_TAG"
+
+            sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/" .env
 
             docker compose \
               -f docker-compose.yml \
@@ -170,78 +171,180 @@ jobs:
               -f docker-compose.prod.yml \
               up -d
 
+            echo "Waiting for application..."
+
+            if ! timeout 120 bash -c '
+              until curl -fs http://127.0.0.1:3000/api/health; do
+                sleep 2
+              done
+            '; then
+
+              echo "Health check failed. Rolling back..."
+
+              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$PREVIOUS_TAG/" .env
+
+              docker compose \
+                -f docker-compose.yml \
+                -f docker-compose.prod.yml \
+                pull
+
+              docker compose \
+                -f docker-compose.yml \
+                -f docker-compose.prod.yml \
+                up -d
+
+              exit 1
+            fi
+
+            echo "Health check passed."
+
+            echo "Running smoke test..."
+
+            if ! curl --fail-with-body \
+              -X POST \
+              http://127.0.0.1:3000/v1/auth/register \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"username\": \"deploy-smoke-${IMAGE_TAG:0:8}\",
+                \"email\": \"deploy-${IMAGE_TAG:0:8}@example.com\",
+                \"password\": \"SmokeTest123!\"
+              }"
+            then
+
+              echo "Smoke test failed. Rolling back..."
+
+              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$PREVIOUS_TAG/" .env
+
+              docker compose \
+                -f docker-compose.yml \
+                -f docker-compose.prod.yml \
+                pull
+
+              docker compose \
+                -f docker-compose.yml \
+                -f docker-compose.prod.yml \
+                up -d
+
+              exit 1
+            fi
+
+            echo "Deployment successful."
+
             docker image prune -f
           EOF
 
+        # use the steps below to run the deploy.sh script instead of inline commands
 
-# name: Deploy to VPS
+      # - name: Deploy to VPS
+      #   run: |
+      #     ssh \
+      #       ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+      #       "/path/to/nodejs-microservices-2025 && ./deploy.sh '${{ github.sha }}'"
 
-# on:
-#   push:
-#     branches:
-#       - master
+# deploy.sh
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
+# #!/usr/bin/env bash
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+# set -Eeuo pipefail
 
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v2
+# APP_ROOT="/path/to/nodejs-microservices-2025"
+# HEALTH_URL="http://127.0.0.1:3000/api/health"
+# SMOKE_TEST_URL="http://127.0.0.1:3000/v1/auth/register"
 
-#       - name: Install Docker Compose
-#         run: |
-#           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-#           sudo chmod +x /usr/local/bin/docker-compose
-#           docker-compose --version
+# COMPOSE_FILES=(
+#     -f docker-compose.yml
+#     -f docker-compose.prod.yml
+# )
 
-#       - name: Log in to Docker Hub
-#         uses: docker/login-action@v2
-#         with:
-#           username: ${{ secrets.DOCKER_USERNAME }}
-#           password: ${{ secrets.DOCKER_PASSWORD }}
+# if [[ $# -ne 1 ]]; then
+#     echo "Usage: $0 <image-sha>"
+#     exit 1
+# fi
 
-#       - name: Build and push Docker images
-#         run: |
-#           docker-compose -f docker-compose.yml build
-#           docker-compose -f docker-compose.yml push
+# NEW_TAG="$1"
 
-#   deploy:
-#     needs: build
-#     runs-on: ubuntu-latest
+# if [[ ! "$NEW_TAG" =~ ^[0-9a-f]{40}$ ]]; then
+#     echo "Invalid image SHA: $NEW_TAG"
+#     exit 1
+# fi
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+# cd "$APP_ROOT"
 
-#       - name: Add VPS SSH host key to known_hosts
-#         run: |
-#           mkdir -p ~/.ssh
-#           ssh-keyscan -H 62.72.30.37 >> ~/.ssh/known_hosts
+# compose() {
+#     docker compose "${COMPOSE_FILES[@]}" "$@"
+# }
 
-#       - name: Set up SSH key for authentication
-#         run: |
-#           mkdir -p ~/.ssh
-#           echo "${{ secrets.VPS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-#           chmod 600 ~/.ssh/id_rsa
+# get_current_tag() {
+#     grep '^IMAGE_TAG=' .env | cut -d= -f2-
+# }
 
-#       - name: SSH into VPS and deploy
-#         uses: appleboy/ssh-action@v0.1.5
-#         with:
-#           host: 62.72.30.37
-#           username: root
-#           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-#           port: 22
-#           script: |
-#             cd /home/root/projects/nodejsfullcourse/NodeJS-Microservices
-#             git pull origin master
-#             docker-compose down
-#             docker-compose up -d
+# set_image_tag() {
+#     local tag="$1"
 
-#       - name: Debug SSH connection (optional)
-#         run: |
-#           ssh -v -i ~/.ssh/id_rsa root@62.72.30.37 "echo 'SSH connection successful'"
-#         continue-on-error: true
+#     if grep -q '^IMAGE_TAG=' .env; then
+#         sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$tag/" .env
+#     else
+#         echo "IMAGE_TAG=$tag" >> .env
+#     fi
+# }
+
+# wait_for_health() {
+#     timeout 120 bash -c "
+#         until curl -fs '$HEALTH_URL'; do
+#             echo 'Waiting for API Gateway...'
+#             sleep 2
+#         done
+#     "
+# }
+
+# run_smoke_test() {
+#     curl --fail-with-body \
+#         -X POST \
+#         "$SMOKE_TEST_URL" \
+#         -H "Content-Type: application/json" \
+#         -d @- <<EOF 
+#       {
+#           "username": "deploy-smoke-${NEW_TAG:0:8}",
+#           "email": "deploy-${NEW_TAG:0:8}@example.com",
+#           "password": "SmokeTest123!"
+#       }
+#       EOF
+
+# rollback() {
+#     local previous_tag="$1"
+
+#     echo "Rolling back to $previous_tag"
+
+#     set_image_tag "$previous_tag"
+
+#     compose pull
+#     compose up -d
+
+#     wait_for_health
+# }
+
+# PREVIOUS_TAG="$(get_current_tag)"
+
+# echo "Previous: $PREVIOUS_TAG"
+# echo "Deploying: $NEW_TAG"
+
+# set_image_tag "$NEW_TAG"
+
+# compose pull
+# compose up -d
+
+# if ! wait_for_health; then
+#     echo "Health check failed"
+#     rollback "$PREVIOUS_TAG"
+#     exit 1
+# fi
+
+# if ! run_smoke_test; then
+#     echo "Smoke test failed"
+#     rollback "$PREVIOUS_TAG"
+#     exit 1
+# fi
+
+# echo "Deployment successful"
+
+# docker image prune -f

@@ -1,4 +1,4 @@
-const OutboxEvent = require("../models/outboxEvent");
+const OutboxEvent = require("../models/OutboxEvent");
 
 const getOutboxEvents = async (req, res) => {
   try {
