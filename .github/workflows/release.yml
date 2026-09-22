@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: kippytech
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify release images exist
+        run: |
+          SHA="${{ github.sha }}"
+
+          services=(
+            api-gateway
+            identity-service
+            post-service
+            media-service
+            search-service
+          )
+
+          for service in "${services[@]}"; do
+            image="ghcr.io/kippytech/$service:$SHA"
+
+            echo "Checking $image"
+
+            docker pull "$image"
+
+            echo "Verifying attestation for $image"
+
+            gh attestation verify \
+                "oci://$image" \
+                --repo kippytech/nodejs-microservices-2025
+          done
+
+      - name: Create release tags
+        run: |
+          SHA="${{ github.sha }}"
+          VERSION="${{ github.ref_name }}"
+
+          services=(
+            api-gateway
+            identity-service
+            post-service
+            media-service
+            search-service
+          )
+
+          for service in "${services[@]}"; do
+            docker pull \
+              "ghcr.io/kippytech/$service:$SHA"
+
+            docker tag \
+              "ghcr.io/kippytech/$service:$SHA" \
+              "ghcr.io/kippytech/$service:$VERSION"
+
+            docker push \
+              "ghcr.io/kippytech/$service:$VERSION"
+          done
+
+
+# to create a release tag, run the following commands in your local repository after ci/cd in deploy.yml & testing is complete and the code is ready for release:
+# git tag v1.0.0
+# git push origin v1.0.0

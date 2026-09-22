@@ -10,6 +10,8 @@ on:
 permissions:
   contents: read
   packages: write
+  attestations: write
+  id-token: write
 
 env:
   #IMAGE_TAG: 2026
@@ -39,105 +41,145 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build API Gateway image
-        run: |
-          docker build \
-            --target production \
-            -t ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }} \
-            ./api-gateway
-
-      # - name: Tag API Gateway Release
+      # - name: Build API Gateway image
       #   run: |
-      #     docker tag \
-      #       ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }} \
-      #       ghcr.io/kippytech/api-gateway:${{ env.RELEASE_TAG }}
+      #     docker build \
+      #       --target production \
+      #       -t ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }} \
+      #       ./api-gateway
 
-      - name: Build Identity Service image
-        run: |
-          docker build \
-            --target production \
-            -t ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }} \
-            ./identity-service
+      - name: Build and push API Gateway image
+        id: build-api-gateway
+        uses: docker/build-push-action@v7
+        with:
+          context: ./api-gateway
+          target: production
+          push: true
+          tags: ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }}
+          provenance: mode=max
+          sbom: true
 
-      # - name: Tag Identity Service Release
+      - name: Attest API Gateway image
+        uses: actions/attest@v4
+        with:
+          subject-name: ghcr.io/kippytech/api-gateway
+          subject-digest: ${{ steps.build-api-gateway.outputs.digest }}
+          push-to-registry: true
+
+      # - name: Build Identity Service image
       #   run: |
-      #     docker tag \
-      #       ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }} \
-      #       ghcr.io/kippytech/identity-service:${{ env.RELEASE_TAG }}
+      #     docker build \
+      #       --target production \
+      #       -t ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }} \
+      #       ./identity-service
 
-      - name: Build Post Service image
-        run: |
-          docker build \
-            --target production \
-            -t ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }} \
-            ./post-service
+      - name: Build and push Identity Service image
+        id: build-identity-service
+        uses: docker/build-push-action@v7
+        with:
+          context: ./identity-service
+          target: production
+          push: true
+          tags: ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }}
+          provenance: mode=max
+          sbom: true
 
-      # - name: Tag Post Service Release
+      - name: Attest Identity Service image
+        uses: actions/attest@v4
+        with:
+          subject-name: ghcr.io/kippytech/identity-service
+          subject-digest: ${{ steps.build-identity-service.outputs.digest }}
+          push-to-registry: true
+
+      # - name: Build Post Service image
       #   run: |
-      #     docker tag \
-      #       ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }} \
-      #       ghcr.io/kippytech/post-service:${{ env.RELEASE_TAG }}
+      #     docker build \
+      #       --target production \
+      #       -t ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }} \
+      #       ./post-service
 
-      - name: Build Media Service image
-        run: |
-          docker build \
-            --target production \
-            -t ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }} \
-            ./media-service
+      - name: Build and push Post Service image
+        id: build-post-service
+        uses: docker/build-push-action@v7
+        with:
+          context: ./post-service
+          target: production
+          push: true
+          tags: ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }}
+          provenance: mode=max
+          sbom: true
 
-      # - name: Tag Media Service Release
+      - name: Attest Post Service image
+        uses: actions/attest@v4
+        with:
+          subject-name: ghcr.io/kippytech/post-service
+          subject-digest: ${{ steps.build-post-service.outputs.digest }}
+          push-to-registry: true
+
+      # - name: Build Media Service image
       #   run: |
-      #     docker tag \
-      #       ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }} \
-      #       ghcr.io/kippytech/media-service:${{ env.RELEASE_TAG }}
+      #     docker build \
+      #       --target production \
+      #       -t ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }} \
+      #       ./media-service
 
-      - name: Build Search Service image
-        run: |
-          docker build \
-            --target production \
-            -t ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }} \
-            ./search-service
+      - name: Build and push Media Service image
+        id: build-media-service
+        uses: docker/build-push-action@v7
+        with:
+          context: ./media-service
+          target: production
+          push: true
+          tags: ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }}
+          provenance: mode=max
+          sbom: true
 
-      # - name: Tag Search Service Release
+      - name: Attest Media Service image
+        uses: actions/attest@v4
+        with:
+          subject-name: ghcr.io/kippytech/media-service
+          subject-digest: ${{ steps.build-media-service.outputs.digest }}
+          push-to-registry: true
+
+      # - name: Build Search Service image
       #   run: |
-      #     docker tag \
-      #       ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }} \
-      #       ghcr.io/kippytech/search-service:${{ env.RELEASE_TAG }}
+      #     docker build \
+      #       --target production \
+      #       -t ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }} \
+      #       ./search-service
 
-      - name: Push API Gateway image
-        run: docker push ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }}
+      - name: Build and push Search Service image
+        id: build-search-service
+        uses: docker/build-push-action@v7
+        with:
+          context: ./search-service
+          target: production
+          push: true
+          tags: ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }}
+          provenance: mode=max
+          sbom: true
 
-      # - name: Push Release Image
-      #   run: |
-      #     docker push ghcr.io/kippytech/api-gateway:${{ env.RELEASE_TAG }}
+      - name: Attest Search Service image
+        uses: actions/attest@v4
+        with:
+          subject-name: ghcr.io/kippytech/search-service
+          subject-digest: ${{ steps.build-search-service.outputs.digest }}
+          push-to-registry: true
 
-      - name: Push Identity Service image
-        run: docker push ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }}
+      # - name: Push API Gateway image
+      #   run: docker push ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }}
 
-      # - name: Push Release Image
-      #   run: |
-      #     docker push ghcr.io/kippytech/identity-service:${{ env.RELEASE_TAG }}
+      # - name: Push Identity Service image
+      #   run: docker push ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }}
 
-      - name: Push Post Service image
-        run: docker push ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }}
+      # - name: Push Post Service image
+      #   run: docker push ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }}
 
-      # - name: Push Release Image
-      #   run: |
-      #     docker push ghcr.io/kippytech/post-service:${{ env.RELEASE_TAG }}
+      # - name: Push Media Service image
+      #   run: docker push ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }}
 
-      - name: Push Media Service image
-        run: docker push ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }}
-
-      # - name: Push Release Image
-      #   run: |
-      #     docker push ghcr.io/kippytech/media-service:${{ env.RELEASE_TAG }}
-
-      - name: Push Search Service image
-        run: docker push ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }}
-
-      # - name: Push Release Image
-      #   run: |
-      #     docker push ghcr.io/kippytech/search-service:${{ env.RELEASE_TAG }}
+      # - name: Push Search Service image
+      #   run: docker push ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }}
 
       - name: Configure SSH
         run: |
