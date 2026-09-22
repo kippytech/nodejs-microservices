@@ -12,6 +12,7 @@ permissions:
   packages: write
   attestations: write
   id-token: write
+  security-events: write
 
 env:
   #IMAGE_TAG: 2026
@@ -59,6 +60,24 @@ jobs:
           provenance: mode=max
           sbom: true
 
+      - name: Scan API Gateway image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }}
+          format: sarif
+          output: trivy-api-gateway.sarif
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Upload API Gateway scan results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-api-gateway.sarif
+          category: trivy-api-gateway
+
       - name: Attest API Gateway image
         uses: actions/attest@v4
         with:
@@ -83,6 +102,24 @@ jobs:
           tags: ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }}
           provenance: mode=max
           sbom: true
+
+      - name: Scan Identity Service image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/kippytech/identity-service:${{ env.IMAGE_TAG }}
+          format: sarif
+          output: trivy-identity-service.sarif
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Upload Identity Service scan results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-identity-service.sarif
+          category: trivy-identity-service
 
       - name: Attest Identity Service image
         uses: actions/attest@v4
@@ -109,6 +146,24 @@ jobs:
           provenance: mode=max
           sbom: true
 
+      - name: Scan Post Service image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/kippytech/post-service:${{ env.IMAGE_TAG }}
+          format: sarif
+          output: trivy-post-service.sarif
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Upload Post Service scan results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-post-service.sarif
+          category: trivy-post-service
+
       - name: Attest Post Service image
         uses: actions/attest@v4
         with:
@@ -134,6 +189,24 @@ jobs:
           provenance: mode=max
           sbom: true
 
+      - name: Scan Media Service image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/kippytech/media-service:${{ env.IMAGE_TAG }}
+          format: sarif
+          output: trivy-media-service.sarif
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Upload Media Service scan results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-media-service.sarif
+          category: trivy-media-service
+
       - name: Attest Media Service image
         uses: actions/attest@v4
         with:
@@ -158,6 +231,24 @@ jobs:
           tags: ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }}
           provenance: mode=max
           sbom: true
+
+      - name: Scan Search Service image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/kippytech/search-service:${{ env.IMAGE_TAG }}
+          format: sarif
+          output: trivy-search-service.sarif
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Upload Search Service scan results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-search-service.sarif
+          category: trivy-search-service
 
       - name: Attest Search Service image
         uses: actions/attest@v4
