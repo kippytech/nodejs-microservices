@@ -1,5 +1,5 @@
 # Node.js Microservices Platform
-A production-oriented social platform backend built with **Node.js, Express, MongoDB, Redis, RabbitMQ, BullMQ, and Cloudinary**, with distributed tracing, metrics, centralized logging, automated alerting, containerization, and Kubernetes-based GitOps deployment.
+A production-oriented social platform backend built with **Node.js, Express, MongoDB, Redis, RabbitMQ, BullMQ, and Cloudinary**, with distributed tracing, metrics, centralized logging, automated alerting, containerization, and production deployment through Docker Compose and Kubernetes-based GitOps.
 
 The system is designed around independently deployable services and asynchronous event-driven communication, while maintaining reliability through transactional outbox processing, idempotent consumers, retries, dead-letter queues, background jobs, and graceful shutdown.
 
@@ -53,6 +53,12 @@ Supporting infrastructure includes:
 * **GitHub Actions** — CI/CD automation.
 
 * **GitHub Container Registry** — container image registry.
+
+* **Trivy** — container image vulnerability scanning.
+
+* **GitHub Artifact Attestations** — signed artifact provenance for container images.
+
+* **GitHub Code Scanning** — SARIF-based security findings and vulnerability reporting.
 
 ## High-Level Architecture
 ```text
@@ -1019,6 +1025,65 @@ GitHub Actions
 
 The repository therefore separates application image building from Kubernetes deployment through a GitOps workflow.
 
+**## Production VPS Deployment**
+
+The project also supports production deployment to a VPS using Docker Compose.
+
+The production deployment path is:
+
+```text
+GitHub
+   │
+   ▼
+GitHub Actions
+   │
+   ├── Run CI
+   │
+   ├── Build production images
+   │
+   ├── Generate SBOM and provenance
+   │
+   ├── Push SHA-tagged images to GHCR
+   │
+   ├── Scan images with Trivy
+   │
+   ├── Publish vulnerability results
+   │
+   ├── Create GitHub Artifact Attestations
+   │
+   ▼
+VPS
+   │
+   ├── Pull exact image SHA
+   │
+   ├── Update IMAGE_TAG
+   │
+   ├── Start Docker Compose
+   │
+   ├── Wait for health
+   │
+   ├── Run smoke test
+   │
+   └── Roll back on failure
+```
+
+GitHub Actions is responsible for CI/CD orchestration, while the VPS deployment script owns the deployment mechanics.
+
+Production images are identified by their Git commit SHA rather than by mutable tags such as `latest`. This allows a deployment to reference an exact immutable image version.
+
+The VPS deployment script:
+
+1. Records the currently deployed image SHA.
+2. Updates `IMAGE_TAG` to the new SHA.
+3. Pulls the corresponding production images from GHCR.
+4. Starts the production Docker Compose stack.
+5. Waits for the API Gateway health endpoint.
+6. Runs a deployment smoke test.
+7. Rolls back to the previous SHA if health checks or the smoke test fail.
+8. Removes unused local Docker images after a successful deployment.
+
+The deployment script is located at the end of deploy.yml commented out as `deploy.sh`.
+
 ## CI/CD
 ### Continuous Integration
 GitHub Actions runs CI on pushes and pull requests targeting `main` and `develop`.
@@ -1049,25 +1114,55 @@ The CI workflow:
 
 12. Shuts down the environment.
 
-### Kubernetes GitOps Deployment
+**### VPS Docker Compose Deployment**
+
+After successful CI on `main`, the production VPS deployment workflow:
+
+1. Builds production images for all application services.
+2. Generates image provenance and SBOM metadata.
+3. Pushes SHA-tagged images to GHCR.
+4. Scans the images with Trivy for HIGH and CRITICAL vulnerabilities.
+5. Publishes scan results to GitHub Code Scanning.
+6. Creates GitHub Artifact Attestations for the images.
+7. Connects to the production VPS through SSH.
+8. Invokes `deploy.sh` with the Git commit SHA.
+9. Pulls the exact SHA-tagged images.
+10. Performs health and smoke tests.
+11. Automatically rolls back to the previous image SHA if deployment validation fails.
+
+The deployment workflow therefore separates **image creation and verification in GitHub Actions** from **application deployment mechanics on the VPS**.
+
+**### Kubernetes GitOps Deployment**
+
+The project also maintains a Kubernetes GitOps deployment path.
+
 After successful CI on `main`, the Kubernetes deployment workflow:
 
 1. Identifies whether application code changed.
-
 2. Builds production images for the affected application services.
-
 3. Pushes images to GHCR.
-
-4. Updates the development Helm image tag.
-
+4. Updates the appropriate Helm image tag.
 5. Commits the Helm change.
-
 6. Pushes the change back to Git.
+7. Argo CD reconciles the desired Kubernetes state.
 
-Argo CD can then reconcile the desired Kubernetes state from Git.
+This provides a separate Kubernetes deployment path from the VPS Docker Compose deployment.
 
 ### Container Registry
 Production images are published to GitHub Container Registry under the project's GitHub organization/account namespace.
+
+**### Container Image Security**
+
+Production container images are built using Docker BuildKit with:
+
+* **SBOM generation** — records the software components contained in each image.
+* **Build provenance** — records how the image was built.
+* **GitHub Artifact Attestations** — provides signed provenance that can be verified independently of the deployment workflow.
+* **Trivy scanning** — checks operating-system and application dependencies for known HIGH and CRITICAL vulnerabilities.
+
+Trivy results are uploaded to GitHub Code Scanning using SARIF.
+
+Release promotion does not rebuild container images. A verified SHA-tagged image is promoted to a semantic version tag such as `v1.0.0`, ensuring that the release tag refers to the same image that was previously built, scanned, and attested.
 
 ## End-to-End Testing
 The E2E suite verifies an asynchronous business workflow rather than testing isolated endpoints only.
@@ -2222,51 +2317,39 @@ The result is not simply a local Kubernetes demo: the same application architect
 </details>
 
 ## Deployment Model
-| Environment | Main purpose | Orchestration | Infrastructure |
-|---|---|---|---|
-| Docker Compose | Local development and E2E testing | Docker Compose | Local machine |
-| Kubernetes / Kind | Kubernetes development and GitOps validation | Kubernetes + Helm + Argo CD | Local Kind cluster |
-| AWS / EKS | Real cloud deployment | EKS + Helm + Argo CD | Terraform + AWS |
+| Environment          | Main purpose                                 | Orchestration               | Infrastructure     |
+| -------------------- | -------------------------------------------- | --------------------------- | ------------------ |
+| Docker Compose       | Local development and E2E testing            | Docker Compose              | Local machine      |
+| VPS / Docker Compose | Production deployment                        | Docker Compose              | VPS                |
+| Kubernetes / Kind    | Kubernetes development and GitOps validation | Kubernetes + Helm + Argo CD | Local Kind cluster |
+| AWS / EKS            | Cloud deployment                             | EKS + Helm + Argo CD        | Terraform + AWS    |
 
 The progression is:
 
+The project supports two production deployment paths:
+
 ```text
-
-Local application
-
-      ↓
-
-Containerized application
-
-      ↓
-
-Kubernetes workloads
-
-      ↓
-
-GitOps deployment
-
-      ↓
-
-AWS networking
-
-      ↓
-
-Managed Kubernetes
-
-      ↓
-
-AWS load balancing
-
-      ↓
-
-Cloud persistent storage
-
-      ↓
-
-Publicly accessible cloud deployment
-
+Application
+    │
+    ├──────────────► VPS
+    │                  │
+    │                  ▼
+    │             Docker Compose
+    │                  │
+    │                  ▼
+    │            Production VPS
+    │
+    └──────────────► Kubernetes
+                       │
+                       ▼
+                  Helm + Argo CD
+                       │
+                       ▼
+                    AWS EKS
 ```
+
+The VPS path provides a simpler production deployment model using Docker Compose, while the Kubernetes path provides the project's Kubernetes and GitOps deployment model.
+
 
 ---
 
@@ -2349,7 +2432,9 @@ Publicly accessible cloud deployment
 
         ├── deploy.yml
 
-        └── deploy-kubernetes.yml
+        ├── deploy-kubernetes.yml
+
+        └── release.yml
 
 ```
 
