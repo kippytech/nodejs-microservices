@@ -64,32 +64,21 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }}
-          format: table
-          #format: sarif
-          #output: trivy-api-gateway.sarif
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: os,library
-          severity: HIGH,CRITICAL
-
-      - name: Generate API Gateway SARIF
-        if: always()
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: ghcr.io/kippytech/api-gateway:${{ env.IMAGE_TAG }}
           format: sarif
           output: trivy-api-gateway.sarif
-          exit-code: '0'
-          ignore-unfixed: true
+          exit-code: '1'
+          ignore-unfixed: true          
           vuln-type: os,library
           severity: HIGH,CRITICAL
+          scanners: vuln
+          limit-severities-for-sarif: true
 
       - name: Upload API Gateway scan results
         if: always()
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-api-gateway.sarif
-          #category: trivy-api-gateway
+          category: trivy-api-gateway
 
       - name: Attest API Gateway image
         uses: actions/attest@v4
@@ -126,10 +115,12 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: HIGH,CRITICAL
+          scanners: vuln
+          limit-severities-for-sarif: true
 
       - name: Upload Identity Service scan results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-identity-service.sarif
           category: trivy-identity-service
@@ -169,10 +160,12 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: HIGH,CRITICAL
+          scanners: vuln
+          limit-severities-for-sarif: true
 
       - name: Upload Post Service scan results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-post-service.sarif
           category: trivy-post-service
@@ -212,10 +205,12 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: HIGH,CRITICAL
+          scanners: vuln
+          limit-severities-for-sarif: true
 
       - name: Upload Media Service scan results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-media-service.sarif
           category: trivy-media-service
@@ -255,10 +250,12 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: HIGH,CRITICAL
+          scanners: vuln
+          limit-severities-for-sarif: true
 
       - name: Upload Search Service scan results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-search-service.sarif
           category: trivy-search-service
