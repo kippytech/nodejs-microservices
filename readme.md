@@ -1114,7 +1114,7 @@ The CI workflow:
 
 12. Shuts down the environment.
 
-**### VPS Docker Compose Deployment**
+### VPS Docker Compose Deployment
 
 After successful CI on `main`, the production VPS deployment workflow:
 
@@ -1132,7 +1132,7 @@ After successful CI on `main`, the production VPS deployment workflow:
 
 The deployment workflow therefore separates **image creation and verification in GitHub Actions** from **application deployment mechanics on the VPS**.
 
-**### Kubernetes GitOps Deployment**
+### Kubernetes GitOps Deployment
 
 The project also maintains a Kubernetes GitOps deployment path.
 
@@ -1151,7 +1151,7 @@ This provides a separate Kubernetes deployment path from the VPS Docker Compose 
 ### Container Registry
 Production images are published to GitHub Container Registry under the project's GitHub organization/account namespace.
 
-**### Container Image Security**
+### Container Image Security
 
 Production container images are built using Docker BuildKit with:
 
